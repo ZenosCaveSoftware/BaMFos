@@ -9,9 +9,7 @@ Setup
 ------------------------------
 To compile the source you will need a i686-elf-gcc cross compiler.
 Follow the instructions here for how to do so.
-http://wiki.osdev.org/GCC_Cross-Compiler *
-You will need to set the target dependent on the platform on which you are running this.
-
+http://wiki.osdev.org/GCC_Cross-Compiler 
 
 Compilation
 ------------------------------
@@ -36,7 +34,7 @@ Provided scripts:
 
 
 
-* Note:before running make, but after running ```../binutils-x.y.z ...```, running ```echo "MAKEINFO = :" >> Makefile``` 
+Note:before running make, but after running ```../binutils-x.y.z ...```, running ```echo "MAKEINFO = :" >> Makefile``` 
 takes care of the error you will possibly recieve other wise. 
 
 **ONLY TRY THIS IF THE BUILD FAILS WITHOUT FIRST**
