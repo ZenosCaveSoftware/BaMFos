@@ -6,10 +6,10 @@ mkdir -p isodir
 mkdir -p isodir/boot
 mkdir -p isodir/boot/grub
 
-cp sysroot/boot/myos.kernel isodir/boot/myos.kernel
+cp sysroot/boot/BaMF.kernel isodir/boot/BaMF.kernel
 cat > isodir/boot/grub/grub.cfg << EOF
-menuentry "myos" {
-	multiboot /boot/myos.kernel
+menuentry "BaMF-OS" {
+	multiboot /boot/BaMF.kernel
 }
 EOF
-grub-mkrescue -o myos.iso isodir
+grub-mkrescue -o BaMF.iso isodir
