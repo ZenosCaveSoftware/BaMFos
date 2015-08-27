@@ -1,7 +1,9 @@
 # Iso Files/dirs
 *.iso
+*.kernel
 isodir
 sysroot
+log
 
 # Object files
 *.o

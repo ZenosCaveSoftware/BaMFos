@@ -2,7 +2,7 @@
 MODULES = kernel libc
 
 CFLAGS += $(patsubst %,-I%/include,\
-	$(MODULES))
+	$(MODULES)) -ffreestanding -nostdlib -lgcc
 
 ARCH ?= i686
 ARCHDIR := kernel/arch/$(ARCH)
@@ -20,33 +20,52 @@ LSRC :=
 include $(patsubst %,\
 	%/module.mk,$(MODULES))
 
-KOBJ :=								\
-		$(patsubst %.c,%.o,			\
-			$(filter %.c,$(KSRC)))	\
-		$(patsubst %.S,%.o,			\
-			$(filter %.S,$(KSRC)))
 
-LOBJ :=								\
-		$(patsubst %.c,%.o,			\
-			$(filter %.c,$(LSRC)))	\
-		$(patsubst %.S,%.o,			\
-			$(filter %.S,$(LSRC)))
+KSRC := $(filter-out kernel/arch/$(ARCH)/crti.s, $(KSRC))
+KSRC := $(filter-out kernel/arch/$(ARCH)/crtn.s, $(KSRC))
+
+CRTI_OBJ:=$(ARCHDIR)/crti.o
+CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtbegin.o)
+CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtend.o)
+CRTN_OBJ:=$(ARCHDIR)/crtn.o
+
+KOBJ :=									\
+		$(patsubst %.c,%.o,				\
+			$(filter %.c,$(KSRC)))		\
+		$(patsubst %.S,%.o,				\
+			$(filter %.S,$(KSRC)))		\
+
+LOBJ :=									\
+		$(patsubst %.c,%.o,				\
+			$(filter %.c,$(LSRC)))		\
+		$(patsubst %.S,%.o,				\
+			$(filter %.S,$(LSRC)))		\
+
+OBJ_LINKER :=	\
+$(CRTI_OBJ) 	\
+$(CRTBEGIN_OBJ) \
+$(KOBJ) 		\
+$(LOBJ) 		\
+$(CRTEND_OBJ)	\
+$(CRTN_OBJ) 	\
+
 
 .PHONY: all clean install install-headers install-kernel
 
 all: BaMF.kernel
 
-BaMF.kernel: $(KOBJ) $(ARCHDIR)/linker.ld
-	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(KOBJ) $(LDFLAGS) $(LIBS)
+BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/linker.ld
+	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) \
+	2>&1 | tee ../log/$@.log
 
 %.o: %.c
-	$(CC) -c $< -o $@ -std=c11 $(CFLAGS)
+	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@).log
 
 %.o: %.S
-	$(AS) -c $< -o $@ $(CFLAGS)
+	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@).log
 
 clean: 
-	rm -f BaMF.kernel $(KOBJ) $(LOBJ)
+	rm -f BaMF.kernel $(CRTI_OBJ) $(KOBJ) $(LOBJ) $(CRTN_OBJ) 
 
 install: install-headers install-kernel
 
@@ -58,7 +77,7 @@ install-headers:
 
 install-kernel: BaMF.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp BaMF.kernel $(DESTDIR)$(BO
+	cp BaMF.kernel $(DESTDIR)$(BOOTDIR)
 
 #include $(KOBJ:.o=.d) $(LOBJ:.o=.d)
 

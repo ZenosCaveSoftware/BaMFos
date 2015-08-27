@@ -4,6 +4,7 @@ set -e
 
 $MAKE -C ../src clean
 
+rm -rfv ../log
 rm -rfv ../sysroot
 rm -rfv ../isodir
 rm -rfv ../BaMF.iso
