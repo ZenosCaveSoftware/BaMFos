@@ -34,7 +34,7 @@ Provided scripts:
 
 
 
-Note:before running make, but after running ```../binutils-x.y.z ...```, running ```echo "MAKEINFO = :" >> Makefile``` 
+Note:During the compiler setup, before running make, but after running ```../binutils-x.y.z ...```, running ```echo "MAKEINFO = :" >> Makefile``` 
 takes care of the error you will possibly recieve other wise. 
 
 **ONLY TRY THIS IF THE BUILD FAILS WITHOUT FIRST**
