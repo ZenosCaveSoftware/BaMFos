@@ -7,8 +7,15 @@
 extern "C" {
 #endif
 
+
+#ifdef NULL
+#undef NULL
+#define NULL 0
+#endif
+
 __attribute__((__noreturn__))
 void abort(void);
+
 
 #ifdef __cplusplus
 }

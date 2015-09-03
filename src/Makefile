@@ -2,7 +2,7 @@
 MODULES = kernel libc
 
 CFLAGS += $(patsubst %,-I%/include,\
-	$(MODULES)) -ffreestanding -nostdlib -lgcc
+	$(MODULES)) -ffreestanding -nostdlib -lgcc -std=c11
 
 ARCH ?= i686
 ARCHDIR := kernel/arch/$(ARCH)
@@ -30,9 +30,9 @@ CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtend.o)
 CRTN_OBJ:=$(ARCHDIR)/crtn.o
 
 KOBJ :=									\
-		$(patsubst %.c,%.o,				\
+		$(patsubst %.c,%.c.o,				\
 			$(filter %.c,$(KSRC)))		\
-		$(patsubst %.S,%.o,				\
+		$(patsubst %.S,%.S.o,				\
 			$(filter %.S,$(KSRC)))		\
 
 LOBJ :=									\
@@ -58,11 +58,11 @@ BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) \
 	2>&1 | tee ../log/$@.log
 
-%.o: %.c
-	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@).log
+%.c.o: %.c
+	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
 
-%.o: %.S
-	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@).log
+%.S.o: %.S
+	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
 
 clean: 
 	rm -f BaMF.kernel $(CRTI_OBJ) $(KOBJ) $(LOBJ) $(CRTN_OBJ) 

@@ -4,10 +4,12 @@
 #include <stdio.h>
 
 #include <kernel/tty.h>
+#include <kernel/dts.h>
 
 void kernel_early(void)
 {
 	terminal_initialize();
+	initialize_descriptor_tables();
 }
 
 void kernel_main(void)
@@ -19,5 +21,6 @@ void kernel_main(void)
  | ___ \\/ _` | |\\/| ||  _|____| | | |`--. \\  \n\
  | |_/ / (_| | |  | || |      \\ \\_/ /\\__/ /  \n\
  \\____/ \\__,_\\_|  |_/\\_|       \\___/\\____/\n\
+ Barely 	 Made 	Functional: An OS.\n\
  ");
 }
