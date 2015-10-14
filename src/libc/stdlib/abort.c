@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 __attribute__((__noreturn__))
-void abort(void)
+void abort()
 {
 	// TODO: Add proper kernel panic.
 	printf("Kernel Panic: abort()\n");

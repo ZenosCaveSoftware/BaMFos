@@ -1,7 +1,7 @@
 #ifndef _KERNEL_DTS_H
 #define _KERNEL_DTS_H
 
-#if !defined(__cplusplus)
+#if !defined(__cpluscplus)
 #include <stdbool.h>
 #endif
 #include <stddef.h>

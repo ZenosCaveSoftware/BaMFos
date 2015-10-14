@@ -27,6 +27,15 @@
 #define ICW4_BUF_MASTER	0x0C	/* Buffered mode/master */
 #define ICW4_SFNM		0x10	/* Special fully nested (not) */
 
+
+typedef void *(*irq_t)(void *);					/* interrupt request handler type */
+typedef void *(*isr_t)(void *); 				/* interrupt service routine type */
+typedef void *(*isr_err_t)(void *, uint32_t);	/* interrupt service routine w/ error type */
+
+void register_irq_handler(uint8_t n, irq_t handler);
+void register_int_handler(uint8_t n, isr_t handler);
+void register_int_err_handler(uint8_t n, isr_err_t handler);
+
 void irqfunc(uint32_t irqnum, void *ctx);
 void intfunc(uint32_t irqnum, void *ctx);
 void intfunc_err(uint32_t irqnum, void *ctx, uint32_t errcode);

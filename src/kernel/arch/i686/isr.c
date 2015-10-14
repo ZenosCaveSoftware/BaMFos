@@ -47,6 +47,22 @@ DEFINTWRAPPER_ERR(14);//page fault
 //software interrupts
 DEFINTWRAPPER(0x80);//system call
 
+void register_irq_handler(uint8_t n, irq_t handler)
+{
+	if (n < 16) {
+		irqfuncs[n] = handler;
+	}
+}
+
+void register_int_handler(uint8_t n, isr_t handler)
+{
+	intfuncs[n] = handler;
+}
+
+void register_int_err_handler(uint8_t n, isr_err_T handler)
+{
+	intfuncs_err[n] = handler;
+}
 //this function is called in all the IRQs
 //it will call the corresponding function in the irqfuncs array, as long as it's not NULL (and the interrupt is not spourious)
 //if the called function returns a non-NULL pointer, that pointer will be used as a stack to switch the task
