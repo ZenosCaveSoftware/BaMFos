@@ -1,5 +1,5 @@
 export MAKE=${MAKE:-make}
-export HOST=${HOST:-$(./default-host.sh)}
+export HOST=${HOST:-$(./default-host)}
 
 export AR=${HOST}-ar
 export AS=${HOST}-as

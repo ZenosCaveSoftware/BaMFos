@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
-. ./headers.sh
+. ./headers
 
 DESTDIR="$PWD/../sysroot" $MAKE -C ../src install
