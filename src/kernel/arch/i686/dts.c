@@ -141,12 +141,12 @@ static void fillgdte(gdt_entry_t* entry, gdt_t source, bool is_tss)
 
 	if(is_tss)
 	{
-		entry->granularity = 0x00;
+		entry->granularity = 0x40;
 	}
 	//Encode Limit
 	entry->limit_low = source.limit & 0xFFFF;
 	entry->granularity |= (source.limit >> 16) & 0x0F;
-
+	
 	//Encode Base
 	entry->base_low = source.base & 0xFFFF;
 	entry->base_middle = (source.base >> 16) & 0xFF;
@@ -162,7 +162,7 @@ static void write_tss(gdt_entry_t *gdtp, uint16_t ss0, uint32_t esp0)
 	uintptr_t base = (uintptr_t)tssp;
 	uintptr_t limit = base + sizeof *tssp;
 
-	fillgdte(gdtp, (gdt_t){.base=base, .limit=limit, .type=0xE9}, true);
+	fillgdte(gdtp, (gdt_t){.base=base, .limit=limit, .type=0x89}, true);
 
 	memset((void *)tssp, 0x0, sizeof *tssp);
 
