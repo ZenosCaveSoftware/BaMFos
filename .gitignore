@@ -1,5 +1,4 @@
 # Iso Files/dirs
-*.iso
 *.kernel
 isodir
 sysroot
