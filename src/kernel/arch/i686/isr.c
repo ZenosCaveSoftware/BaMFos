@@ -4,7 +4,7 @@
 
 void *(**irqfuncs)(void * ctx);
 void *(**intfuncs)(void * ctx);
-void *(**intfuncs_err)(void * ctx, uint32_t errcode);
+void *(**intfuncs_err)(void * ctx, uint32_t err_code);
 
 //IRQs (the 16 IRQs the PIC has)
 DEFIRQWRAPPER(0);
@@ -59,7 +59,7 @@ void register_int_handler(uint8_t n, isr_t handler)
 	intfuncs[n] = handler;
 }
 
-void register_int_err_handler(uint8_t n, isr_err_T handler)
+void register_int_err_handler(uint8_t n, isr_err_t handler)
 {
 	intfuncs_err[n] = handler;
 }
@@ -75,8 +75,8 @@ void irqfunc(uint32_t irqnum, void *ctx)
 		if(irqfuncs[irqnum] != NULL)
 			stack = irqfuncs[irqnum](ctx);
 		pic_EOI(irqnum);
-		if(stack)
-			taskswitch(stack);
+		//if(stack)
+			//taskswitch(stack);
 	}
 	else
 	{
@@ -92,8 +92,8 @@ void intfunc(uint32_t intnum, void *ctx)
 	void *stack = NULL;
 	if(intfuncs[intnum] != NULL)
 		stack = intfuncs[intnum](ctx);
-	if(stack)
-		taskswitch(stack);
+	//if(stack)
+		//taskswitch(stack);
 }
  
 //this function is called in exceptions with error code
@@ -104,8 +104,8 @@ void intfunc_err(uint32_t intnum, void *ctx, uint32_t errcode)
 	void *stack = NULL;
 	if(intfuncs_err[intnum] != NULL)
 		stack = intfuncs_err[intnum](ctx, errcode);
-	if(stack)
-		taskswitch(stack);
+	//if(stack)
+		//taskswitch(stack);
 }
 
 uint8_t pic_isnormalIRQ(uint32_t irqnum)

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <kernel/dts.h>
 #include <kernel/utils.h>
+#include <kernel/tty.h>
 
 gdt_entry_t gdt[5];
 gdt_ptr_t	gdt_ptr;
@@ -11,9 +12,13 @@ tss_entry_t tss;
 
 void initialize_descriptor_tables()
 {
+	terminal_writestring("Initializing Descriptor Tables...\n-- Initializing GDT...\t");
 	initialize_gdt();
+	terminal_writestring("[DONE]\n-- Initializing IDT...\n");
 	initialize_idt();
+	terminal_writestring("[DONE]\n-- Initializing irq...\t");
 	initialize_irq();
+	terminal_writestring("[DONE]\n[DONE]\n");	
 	__asm__ __volatile__("sti");
 }
 
@@ -23,16 +28,20 @@ static void initialize_gdt()
 	gdt_ptr.limit = (sizeof(gdt_entry_t) * 5) - 1;
 	gdt_ptr.base  = (uint32_t)&gdt;
 	
-	fillgdte(gdt+0, (gdt_t){.base=0, .limit=0, .type=0}, false);				// Null segment
+	fillgdte(gdt+0, (gdt_t){.base=0, .limit=0, .type=0}, false);			 // Null segment
 	fillgdte(gdt+1, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0x9A}, false); // Code segment
 	fillgdte(gdt+2, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0x92}, false); // Data segment
 	fillgdte(gdt+3, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0xFA}, false); // User mode code segment
 	fillgdte(gdt+4, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0xF2}, false); // User mode data segment
 
+	terminal_writestring("\n-- Writing TSS...\t");
 	write_tss(gdt+5, 0x10, 0x0);
 
 	gdt_flush((uint32_t)&gdt_ptr);
+	terminal_writestring("[DONE]\n\t-- Flushed GDT\n\t--Flushig TSS...\t\t");
+    //__asm__ __volatile__ ("ltr %%ax": : "a" (5<<3));
 	tss_flush();
+	terminal_writestring("[DONE]\n");
 }
 
 void initialize_idt()

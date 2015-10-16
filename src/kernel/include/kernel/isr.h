@@ -3,6 +3,14 @@
 
 #include <stddef.h>
 
+typedef struct registers
+{
+   uint32_t ds;                  // Data segment selector
+   uint32_t edi, esi, ebp, unused, ebx, edx, ecx, eax; // Pushed by pusha.
+   uint32_t int_no, err_code;    // Interrupt number and error code (if applicable)
+   uint32_t eip, cs, eflags, esp, ss; // Pushed by the processor automatically.
+} registers_t;
+
 #define PIC1			0x20	/* IO base address for master PIC */
 #define PIC2			0xA0	/* IO base address for slave PIC */
 #define PIC1_COMMAND	PIC1

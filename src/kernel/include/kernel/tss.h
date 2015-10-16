@@ -1,5 +1,5 @@
 #ifndef _KERNEL_TSS_H
-#define _KERNEL_TSS_H 
+#define _KERNEL_TSS_H 1
 
 typedef struct tss_entry {
 	uint32_t	prev_tss;

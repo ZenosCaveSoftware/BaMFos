@@ -2,7 +2,7 @@
 MODULES = kernel libc
 
 CFLAGS += $(patsubst %,-I%/include,\
-	$(MODULES)) -ffreestanding -nostdlib -lgcc -std=c11
+	$(MODULES)) -ffreestanding -nostdlib -lgcc -std=c11 -DNDEBUG
 
 ARCH ?= i686
 ARCHDIR := kernel/arch/$(ARCH)
@@ -30,9 +30,9 @@ CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtend.o)
 CRTN_OBJ:=$(ARCHDIR)/crtn.o
 
 KOBJ :=									\
-		$(patsubst %.c,%.c.o,				\
+		$(patsubst %.c,%.c.o,			\
 			$(filter %.c,$(KSRC)))		\
-		$(patsubst %.S,%.S.o,				\
+		$(patsubst %.S,%.S.o,			\
 			$(filter %.S,$(KSRC)))		\
 
 LOBJ :=									\
