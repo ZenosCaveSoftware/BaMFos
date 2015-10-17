@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
-. ./build
+. ./iso
 
 qemu-system-$(./target-triplet-to-arch $(./default-host)) -kernel ../src/BaMF.kernel

@@ -12,4 +12,4 @@ menuentry "BaMF-OS" {
 	multiboot /boot/BaMF.kernel
 }
 EOF
-grub-mkrescue -o ../BaMF.iso ../isodir
+grub-mkrescue -d /usr/lib/grub/i386-pc/ -o ../BaMF.iso ../isodir

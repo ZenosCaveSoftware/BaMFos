@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-#. ./iso
+. ./iso
 
 qemu-system-$(./target-triplet-to-arch $(./default-host)) \
--nographic -append "console=tty2" -cdrom ../BaMF.iso
+-nographic -kernel ../src/BaMF.kernel

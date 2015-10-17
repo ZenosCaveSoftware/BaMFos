@@ -34,5 +34,8 @@ log
 *.x86_64
 *.hex
 
+# Backups
+*~
+
 # Debug files
 *.dSYM/

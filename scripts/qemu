@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
-#. ./iso
+. ./iso
 
 qemu-system-$(./target-triplet-to-arch $(./default-host)) -cdrom ../BaMF.iso

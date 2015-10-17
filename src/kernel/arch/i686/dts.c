@@ -160,7 +160,7 @@ static void write_tss(gdt_entry_t *gdtp, uint16_t ss0, uint32_t esp0)
 {
 	tss_entry_t * tssp = &tss;
 	uintptr_t base = (uintptr_t)tssp;
-	uintptr_t limit = base + sizeof *tssp;
+	uintptr_t limit = sizeof tss;
 
 	fillgdte(gdtp, (gdt_t){.base=base, .limit=limit, .type=0x89}, true);
 
