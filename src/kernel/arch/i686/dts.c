@@ -4,7 +4,7 @@
 #include <kernel/utils.h>
 #include <kernel/tty.h>
 
-gdt_entry_t gdt[5];
+gdt_entry_t gdt[6];
 gdt_ptr_t	gdt_ptr;
 idt_entry_t idt[256];
 idt_ptr_t	idt_ptr;
@@ -25,17 +25,17 @@ void initialize_descriptor_tables()
 
 static void initialize_gdt()
 {
-	gdt_ptr.limit = (sizeof(gdt_entry_t) * 5) - 1;
-	gdt_ptr.base  = (uint32_t)&gdt;
+	gdt_ptr.limit = (sizeof(gdt_entry_t) * 6) - 1;
+	gdt_ptr.base  = (uint32_t)&gdt[0];
 	
-	fillgdte(gdt+0, (gdt_t){.base=0, .limit=0, .type=0}, false);			 // Null segment
-	fillgdte(gdt+1, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0x9A}, false); // Code segment
-	fillgdte(gdt+2, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0x92}, false); // Data segment
-	fillgdte(gdt+3, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0xFA}, false); // User mode code segment
-	fillgdte(gdt+4, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0xF2}, false); // User mode data segment
+	fillgdte(0, (gdt_t){.base=0, .limit=0, .type=0}, false);			 // Null segment
+	fillgdte(1, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0x9A}, false); // Code segment
+	fillgdte(2, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0x92}, false); // Data segment
+	fillgdte(3, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0xFA}, false); // User mode code segment
+	fillgdte(4, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0xF2}, false); // User mode data segment
 
 	terminal_writestring("\n-- Writing TSS...\t");
-	write_tss(gdt+5, 0x10, 0x0);
+	write_tss(5, 0x10, 0x0);
 
 	gdt_flush((uint32_t)&gdt_ptr);
 	terminal_writestring("[DONE]\n\t-- Flushed GDT\n\t--Flushig TSS...\t\t");
@@ -122,8 +122,9 @@ void pic_remap(uint8_t offset1, uint8_t offset2)
 }
 
 // Set the value of a GDT entry
-static void fillgdte(gdt_entry_t* entry, gdt_t source, bool is_tss)
+static void fillgdte(int32_t num, gdt_t source, bool is_tss)
 {
+	gdt_entry_t *entry = &gdt[num];
 	if ((source.limit > 65536) && (source.limit & 0xFFF) != 0xFFF)
 	{
 		return;//TODO: implement KERROR.
@@ -141,8 +142,9 @@ static void fillgdte(gdt_entry_t* entry, gdt_t source, bool is_tss)
 
 	if(is_tss)
 	{
-		entry->granularity = 0x40;
+		entry->granularity = 0x00;
 	}
+
 	//Encode Limit
 	entry->limit_low = source.limit & 0xFFFF;
 	entry->granularity |= (source.limit >> 16) & 0x0F;
@@ -156,13 +158,14 @@ static void fillgdte(gdt_entry_t* entry, gdt_t source, bool is_tss)
 	entry->access = source.type;
 }
 
-static void write_tss(gdt_entry_t *gdtp, uint16_t ss0, uint32_t esp0)
+static void write_tss(int32_t num, uint16_t ss0, uint32_t esp0)
 {
+
 	tss_entry_t * tssp = &tss;
 	uintptr_t base = (uintptr_t)tssp;
-	uintptr_t limit = sizeof tss;
+	uintptr_t limit = base + sizeof(tss);
 
-	fillgdte(gdtp, (gdt_t){.base=base, .limit=limit, .type=0x89}, true);
+	fillgdte(num, (gdt_t){.base=base, .limit=limit, .type=0xE9}, true);
 
 	memset((void *)tssp, 0x0, sizeof *tssp);
 

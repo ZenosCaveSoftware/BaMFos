@@ -17,10 +17,10 @@ static void initialize_gdt();
 
 extern void gdt_flush(uint32_t);
 
-static void fillgdte(gdt_entry_t*, gdt_t, bool);
+static void fillgdte(int32_t num, gdt_t, bool);
 
 //tss
-static void write_tss(gdt_entry_t*, uint16_t, uint32_t);
+static void write_tss(int32_t num, uint16_t, uint32_t);
 
 extern void tss_flush();
 
