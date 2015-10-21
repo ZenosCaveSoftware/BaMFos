@@ -1,3 +1,6 @@
+#Emulator files
+bochsout.txt
+
 # Iso Files/dirs
 *.kernel
 isodir

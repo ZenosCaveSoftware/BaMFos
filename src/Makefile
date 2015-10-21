@@ -21,13 +21,13 @@ include $(patsubst %,\
 	%/module.mk,$(MODULES))
 
 
-KSRC := $(filter-out kernel/arch/$(ARCH)/crti.s, $(KSRC))
-KSRC := $(filter-out kernel/arch/$(ARCH)/crtn.s, $(KSRC))
+KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crti.s, $(KSRC))
+KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crtn.s, $(KSRC))
 
-CRTI_OBJ:=$(ARCHDIR)/crti.o
+CRTI_OBJ:=$(ARCHDIR)/boot/crti.o
 CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtbegin.o)
 CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtend.o)
-CRTN_OBJ:=$(ARCHDIR)/crtn.o
+CRTN_OBJ:=$(ARCHDIR)/boot/crtn.o
 
 KOBJ :=									\
 		$(patsubst %.c,%.c.o,			\
@@ -54,8 +54,8 @@ $(CRTN_OBJ) 	\
 
 all: BaMF.kernel
 
-BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/linker.ld
-	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) \
+BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
+	$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) \
 	2>&1 | tee ../log/$@.log
 
 %.c.o: %.c

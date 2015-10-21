@@ -1,0 +1,31 @@
+Reorganization on the new i686 kernel.
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   .gitignore
+#	modified:   BaMF.iso
+#	modified:   scripts/shapelogs
+#	modified:   src/Makefile
+#	renamed:    src/kernel/arch/i686/boot.S -> src/kernel/arch/i686/boot/boot.S
+#	renamed:    src/kernel/arch/i686/crti.S -> src/kernel/arch/i686/boot/crti.S
+#	renamed:    src/kernel/arch/i686/crtn.S -> src/kernel/arch/i686/boot/crtn.S
+#	renamed:    src/kernel/arch/i686/linker.ld -> src/kernel/arch/i686/boot/linker.ld
+#	renamed:    src/kernel/arch/i686/dts.c -> src/kernel/arch/i686/cpu/dts.c
+#	renamed:    src/kernel/arch/i686/gdt.S -> src/kernel/arch/i686/cpu/gdt.S
+#	renamed:    src/kernel/arch/i686/idt.S -> src/kernel/arch/i686/cpu/idt.S
+#	renamed:    src/kernel/arch/i686/isr.c -> src/kernel/arch/i686/cpu/isr.c
+#	renamed:    src/kernel/arch/i686/task.c -> src/kernel/arch/i686/cpu/task.c
+#	renamed:    src/kernel/arch/i686/tss.S -> src/kernel/arch/i686/cpu/tss.S
+#	renamed:    src/kernel/arch/i686/spin.S -> src/kernel/arch/i686/io/spin.S
+#	renamed:    src/kernel/arch/i686/tty.c -> src/kernel/arch/i686/io/tty.c
+#	renamed:    src/kernel/arch/i686/mem.c -> src/kernel/arch/i686/mem/mem.c
+#	renamed:    src/kernel/arch/i686/ord.c -> src/kernel/arch/i686/mem/ord.c
+#	renamed:    src/kernel/arch/i686/paging.c -> src/kernel/arch/i686/mem/paging.c
+#	renamed:    src/kernel/arch/i686/panic.c -> src/kernel/arch/i686/misc/panic.c
+#	renamed:    src/kernel/arch/i686/utils.c -> src/kernel/arch/i686/misc/utils.c
+#	modified:   src/kernel/module.mk
+#	modified:   src/libc/module.mk
+#
