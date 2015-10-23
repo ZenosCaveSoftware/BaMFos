@@ -22,11 +22,10 @@ void initialize_terminal()
 		for ( size_t x = 0; x < VGA_WIDTH; x++ )
 		{
 			const size_t index = y * VGA_WIDTH + x;
-			terminal_buffer[index] = make_vgaentry(' ', terminal_color);
+			terminal_buffer[index] = make_vgaentry('\0', terminal_color);
 		}
 	}
-	const char *init = "Initializing terminal...\t\t\t[DONE]\n";
-	terminal_writestring(init);
+	terminal_writestring("[TTY]   ... DONE\n");
 }
 
 void terminal_setcolor(uint8_t color)
@@ -80,4 +79,25 @@ void terminal_write(const char* data, size_t size)
 void terminal_writestring(const char* data)
 {
 	terminal_write(data, strlen(data));
+}
+
+terminal_writehex(const uint32_t data)
+{
+	int tmp = data;
+	int tmp2 = 0;
+	int val = 0;
+	char str[17];
+	char *p = &str[sizeof(str) - 1];
+	*p = '\0';
+	val = tmp / 16;
+	*--p = ('0' + (char) (tmp - val * 16));
+	tmp = val;
+	while(tmp != 0)
+	{
+		val = tmp / 16;
+		tmp2 = tmp - val * 16;
+		*--p = (tmp2 < 10) ? ('0' + (char) (tmp2)) : ('a' + (char) (tmp2 - 10));
+		tmp = val;
+	}
+	terminal_write(p, strlen(p));
 }

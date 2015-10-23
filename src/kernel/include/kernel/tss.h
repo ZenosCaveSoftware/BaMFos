@@ -31,4 +31,8 @@ typedef struct tss_entry {
 	uint16_t	iomap_base;
 } __attribute__ ((packed)) tss_entry_t;
 
+//tss
+static void write_tss(int32_t num, uint16_t, uint32_t);
+
+extern void tss_flush();
 #endif

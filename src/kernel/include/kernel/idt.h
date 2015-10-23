@@ -1,6 +1,10 @@
 #ifndef _KERNEL_IDT_H
 #define _KERNEL_IDT_H
 
+#if !defined(__cpluscplus)
+#include <stdbool.h>
+#endif
+#include <stddef.h>
 #include <stdint.h>
 
 struct idt_entry_struct
@@ -19,5 +23,18 @@ struct idt_ptr_struct
 	uint32_t	base;
 } __attribute__((packed));
 typedef struct idt_ptr_struct idt_ptr_t;
+
+//idt
+void initialize_idt();
+
+extern void idt_flush(uint32_t);
+
+static void fillidte(idt_entry_t*, uint16_t, void *, uint8_t, uint8_t);
+
+
+//isr & irq
+void initialize_irq();
+
+void pic_remap(uint8_t, uint8_t);
 
 #endif

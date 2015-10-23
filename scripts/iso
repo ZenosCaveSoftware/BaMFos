@@ -2,6 +2,7 @@
 set -e
 . ./build
 
+[[ -d ../isodir ]] && rm -rf ../isodir 
 mkdir -p ../isodir
 mkdir -p ../isodir/boot
 mkdir -p ../isodir/boot/grub
@@ -13,3 +14,5 @@ menuentry "BaMF-OS" {
 }
 EOF
 grub-mkrescue -d /usr/lib/grub/i386-pc/ -o ../BaMF.iso ../isodir
+[[ -f ../BaMF.vdi ]] && rm ../BaMF.vdi
+VBoxManage convertfromraw ../BaMF.iso ../BaMF.vdi

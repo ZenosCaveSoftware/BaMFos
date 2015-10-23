@@ -41,7 +41,6 @@ uintptr_t kmalloc_ap(size_t size, uintptr_t *phys);
 
 void kfree(void *p);
 
-heap_t *create_heap(uintptr_t start, uint32_t end, uint32_t max, uint8_t s, uint8_t ro);
 void *alloc(size_t size, uint8_t align, heap_t *heap);
 void free(void *, heap_t *heap);
 

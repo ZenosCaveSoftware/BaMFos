@@ -1,6 +1,9 @@
 #ifndef _KERNEL_ISR_H
 #define _KERNEL_ISR_H
 
+#if !defined(__cpluscplus)
+#include <stdbool.h>
+#endif
 #include <stddef.h>
 
 typedef struct registers

@@ -123,7 +123,7 @@ void initialize_paging()
     for (i = KERNEL_HEAP_START; i < KERNEL_HEAP_START + KERNEL_HEAP_INIT; i += 0x1000)
         alloc_frame( get_page(i, 1, kernel_directory), 0, 0);
 
-    terminal_writestring("initializing Paging...\n-- Registering Page Fault Handler...\t");
+    terminal_writestring("\n-- Registering Page Fault Handler...\t");
     register_int_err_handler(14, &page_fault);
     
     terminal_writestring("[DONE]\n-- Switching To Kernel Page Directory...\t");
@@ -179,7 +179,14 @@ void *page_fault(void *ctx, uint32_t err_code)
     int32_t us = err_code & 0x4;           // Processor was in user-mode?
     int32_t reserved = err_code & 0x8;     // Overwritten CPU-reserved bits of page entry?
     int32_t id = err_code & 0x10;          // Caused by an instruction fetch?
-
+    terminal_writestring("Page fault! ( ");
+    if (present)    terminal_writestring("present ");
+    if (rw)         terminal_writestring("read-only ");
+    if (us)         terminal_writestring("user-mode ");
+    if (reserved)   terminal_writestring("reserved ");
+    terminal_writestring(") at 0x");
+    terminal_writehex((uint32_t)faulting_address);
+    terminal_writestring("\n");
     PANIC("Page fault");
     return NULL;
 }

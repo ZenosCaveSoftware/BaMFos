@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <kernel/mem.h>
 #include <kernel/paging.h>
+#include <kernel/tty.h>
 
 extern void *end;
 extern page_directory_t *kernel_directory;
@@ -132,11 +133,14 @@ static size_t contract(size_t new_size, heap_t *heap)
 
 heap_t *create_heap(uintptr_t start, uint32_t end, uint32_t max, uint8_t s, uint8_t ro) 
 {
-	heap_t *heap = (heap_t*)kmalloc(sizeof(heap_t));
+	terminal_writestring("\n-- Allocating heap struct...\t");
+    heap_t *heap = (heap_t*)kmalloc(sizeof(heap_t));
 
 	assert(start % 0x1000 == 0);
 	assert(end % 0x1000 == 0);
-		
+	
+
+    terminal_writestring("\n-- placing heap array...\t");    
 	heap->index = place_ordered_array( (void*)start, KERNEL_HEAP_INDEX, &header_t_comperator);
 
 	start += sizeof(proto_t)*KERNEL_HEAP_INDEX;
@@ -157,6 +161,8 @@ heap_t *create_heap(uintptr_t start, uint32_t end, uint32_t max, uint8_t s, uint
 	hole->size = end - start;
 	hole->magic =  KERNEL_HEAP_MAGIC;
 	hole->is_hole = 1;
+
+    terminal_writestring("\n-- Insert initial hole into heap\t"); 
 	insert_ordered_array((void *)hole, &heap->index);
 
 	return heap;

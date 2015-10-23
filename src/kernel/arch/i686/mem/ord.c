@@ -37,6 +37,7 @@ int insert_ordered_array(proto_t item, ordered_array_t *array)
 {
 	assert(array->comp);
 	uint32_t i = 0;
+
 	if(array->size != array->max_size) 
 	{
 		while(i < array->size && array->comp(array->values[i], item)) i++;
@@ -44,13 +45,17 @@ int insert_ordered_array(proto_t item, ordered_array_t *array)
 		{
 			array->values[array->size++] = item;
 		}
+		
 		else{
-			proto_t tmp;
+			proto_t tmp = array->values[i];
+			proto_t tmp2;
 			array->values[i] = item;
-			while(i < array->size)
+			while(i < array->size && array->values[i])
 			{
-				tmp = array->values[i++];
+				i++;
+				tmp2 = array->values[i];
 				array->values[i] = tmp;
+				tmp = tmp2;
 			}
 			array->size++;
 		}	

@@ -3,10 +3,29 @@
 #include <stdio.h>
 #include <string.h>
 
+
 static void print(const char* data, size_t data_length)
 {
 	for ( size_t i = 0; i < data_length; i++ )
 		putchar((int) ((const unsigned char*) data)[i]);
+}
+
+static void printi(const int data) {
+	int tmp = data;
+	int val;
+	char str[33];
+	char *p = &str[sizeof(str) - 1];
+	*p = '\0';
+	val = tmp / 10;
+	*--p = ('0' + (char) (tmp - val * 10));
+	tmp = val;
+	while(tmp != 0)
+	{
+		val = tmp / 10;
+		*--p = ('0' + (char) (tmp - val * 10));
+		tmp = val;
+	}
+	print(p, strlen(p));
 }
 
 int printf(const char* restrict format, ...)
@@ -56,6 +75,13 @@ int printf(const char* restrict format, ...)
 			format++;
 			const char* s = va_arg(parameters, const char*);
 			print(s, strlen(s));
+		}
+		if ( *format == 'd' )
+		{
+			format++;
+			int d = (int) va_arg(parameters, int);
+			char *p;
+			printi(d);
 		}
 		else
 		{
