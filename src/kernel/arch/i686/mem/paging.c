@@ -8,23 +8,26 @@
 #include <kernel/tty.h>
 
 page_directory_t *kernel_directory = NULL;
-
 page_directory_t *current_directory=0;
+
 uint32_t *frames;
 uint32_t nframes;
 
 extern uintptr_t placement_address;
-extern heap_t* kheap;
+extern uintptr_t head_end = (uintptr_t) NULL;
 
-#define INDEX_FROM_BIT(a) ((a) / 32)
-#define OFFSET_FROM_BIT(a) ((a) % 32)
+#define INDEX_FROM_BIT(a) ((a) / 0x20)
+#define OFFSET_FROM_BIT(a) ((a) % 0x20)
 
 static void set_frame(uintptr_t addr)
 {
-	uintptr_t frame = addr/0x1000;
-	uint32_t idx = INDEX_FROM_BIT(frame);
-	uint32_t off = OFFSET_FROM_BIT(frame);
-	frames[idx] |= (0x1 << off);
+	if(addr < nframes * 0x1000)
+    {
+        uintptr_t frame = addr/0x1000;
+        uint32_t idx = INDEX_FROM_BIT(frame);
+        uint32_t off = OFFSET_FROM_BIT(frame);
+        frames[idx] |= (0x1 << off);
+    }
 }
 
 static void clear_frame(uintptr_t addr)
@@ -45,21 +48,21 @@ static uint32_t test_frame(uintptr_t addr)
 
 static uint32_t first_frame()
 {
-    uint32_t i, j;
-    for (i = 0; i < INDEX_FROM_BIT(nframes); i++)
+    for (uint32_t i = 0; i < INDEX_FROM_BIT(nframes); i++)
     {
         if (frames[i] != 0xFFFFFFFF)
         {
             // at least one bit is free here.
-            for (j = 0; j < 32; j++)
+            for (uint32_t j = 0; j < 0x20; j++)
             {
-                if ( !(frames[i] & 0x1 << j) )
+                if ( !(frames[i] & (0x1 << j)) )
                 {
-                    return i*32+j;
+                    return i*0x20+j;
                 }
             }
         }
     }
+    return 0xFFFFFFFF;
 }
 
 void alloc_frame(page_t *page, int32_t is_kernel, int32_t is_writeable)
@@ -73,7 +76,7 @@ void alloc_frame(page_t *page, int32_t is_kernel, int32_t is_writeable)
         uint32_t idx = first_frame();
         if (idx == (uint32_t)-1)
         {
-            PANIC("No free frame!");
+            PANIC("No free frame");
         }
         set_frame(idx*0x1000);
         page->present = 1;
@@ -97,7 +100,7 @@ void free_frame(page_t *page)
     }
 }
 
-void initialize_paging()
+void initialize_paging(uint32_t mem)
 {
     uintptr_t mem_end_page = 0x1000000;
     

@@ -8,10 +8,12 @@
 #include <kernel/idt.h>
 #include <kernel/isr.h>
 #include <kernel/tss.h>
+#include <kernel/multiboot.h>
 #include <kernel/paging.h>
 
-void kernel_early(void)
+void kernel_early(struct multiboot *mboot, uint32_t magic, uintptr_t esp)
 {
+
 	initialize_terminal();
 	terminal_writestring("[GDT]   ... ");
 	initialize_gdt();
@@ -21,11 +23,11 @@ void kernel_early(void)
 	initialize_irq();
 	terminal_writestring("DONE\n[PAGE]  ... ");
 	__asm__ __volatile__("sti");
-	initialize_paging();
+	initialize_paging(mboot->mem_upper + mboot_ptr->mem_lower);
 	terminal_writestring("DONE\n");
 }
 
-void kernel_main(void)
+void kernel_main()
 {
 printf("\
  ______      ___  _________    _____ _____      \n\
