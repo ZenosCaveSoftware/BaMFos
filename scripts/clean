@@ -8,3 +8,4 @@ rm -rfv ../log
 rm -rfv ../sysroot
 rm -rfv ../isodir
 rm -rfv ../BaMF.iso
+rm -rfv ../BaMF.vdi

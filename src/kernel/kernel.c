@@ -11,7 +11,7 @@
 #include <kernel/multiboot.h>
 #include <kernel/paging.h>
 
-void kernel_early(struct multiboot *mboot, uint32_t magic, uintptr_t esp)
+void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 {
 
 	initialize_terminal();
@@ -23,7 +23,7 @@ void kernel_early(struct multiboot *mboot, uint32_t magic, uintptr_t esp)
 	initialize_irq();
 	terminal_writestring("DONE\n[PAGE]  ... ");
 	__asm__ __volatile__("sti");
-	initialize_paging(mboot->mem_upper + mboot_ptr->mem_lower);
+	initialize_paging(mboot->mem_upper + mboot->mem_lower);
 	terminal_writestring("DONE\n");
 }
 

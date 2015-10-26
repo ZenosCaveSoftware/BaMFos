@@ -13,11 +13,11 @@ typedef struct page_t
 	uint32_t unused		: 7;
 	uint32_t frame		: 20;
 	
-} page_t;
+} page_entry_t;
 
 typedef struct page_table
 {
-	page_t pages[1024];
+	page_entry_t pages[1024];
 } page_table_t;
 
 typedef struct page_directory
@@ -28,12 +28,12 @@ typedef struct page_directory
 	
 } page_directory_t;
 
-void alloc_frame(page_t *page, int32_t is_kernel, int32_t is_writeable);
-void free_frame(page_t *page);
+void alloc_frame(page_entry_t *page, int32_t is_kernel, int32_t is_writeable);
+void free_frame(page_entry_t *page);
 
 void initialize_paging();
 void switch_page_directory(page_directory_t *new_dir);
-page_t *get_page(uintptr_t address, int32_t make, page_directory_t *dir);
+page_entry_t *get_page(uintptr_t address, int32_t make, page_directory_t *dir);
 void *page_fault(void *ctx, uint32_t err_code);
 
 #endif

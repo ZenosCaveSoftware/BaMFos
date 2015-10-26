@@ -1,9 +1,6 @@
 #ifndef _KERNEL_MEM_H
 #define _KERNEL_MEM_H value
 
-
-#include <kernel/ord.h>
-
 #define KERNEL_HEAP_START	0x00800000
 #define KERNEL_HEAP_INIT	0x00100000
 #define KERNEL_HEAP_MAGIC 	0xDEADFADE
@@ -24,7 +21,6 @@ typedef struct
 
 typedef struct
 {
-	ordered_array_t index;
 	uintptr_t start;
 	uintptr_t end;
 	uintptr_t max;
@@ -41,7 +37,7 @@ uintptr_t kmalloc_ap(size_t size, uintptr_t *phys);
 
 void kfree(void *p);
 
-void *alloc(size_t size, uint8_t align, heap_t *heap);
+void *alloc(size_t size, uint8_t align);
 void free(void *, heap_t *heap);
 
 #endif

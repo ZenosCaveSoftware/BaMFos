@@ -1,10 +1,11 @@
-#ifndef _KERNEL_GDT_H
-#define _KERNEL_GDT_H
+#ifndef _KERNEL_MULTIBOOT_H
+#define _KERNEL_MULTIBOOT_H 1
 
 #if !defined(__cpluscplus)
 #include <stdbool.h>
 #endif
 #include <stddef.h>
+#include <stdint.h>
 
 #define MULTIBOOT_MAGIC 		0xC001C0D3
 #define MULTIBOOT_EAX_MAGIC 	0xC001C0D3
@@ -20,7 +21,7 @@
 #define MULTIBOOT_FLAG_APM     	0x200
 #define MULTIBOOT_FLAG_VBE     	0x400
 
-struct multiboot
+typedef struct multiboot_struct_t
 {
 	uintptr_t flags;
 	uintptr_t mem_lower;
@@ -46,6 +47,6 @@ struct multiboot
 	uintptr_t vbe_interface_seg;
 	uintptr_t vbe_interface_off;
 	uintptr_t vbe_interface_len;
-};
+} multiboot_t;
 
 #endif

@@ -81,7 +81,7 @@ void terminal_writestring(const char* data)
 	terminal_write(data, strlen(data));
 }
 
-terminal_writehex(const uint32_t data)
+void terminal_writehex(const uint32_t data)
 {
 	int tmp = data;
 	int tmp2 = 0;

@@ -1,7 +1,12 @@
 #ifndef _KERNEL_TTY_H
 #define _KERNEL_TTY_H
 
+#if !defined(__cpluscplus)
+#include <stdbool.h>
+#endif
 #include <stddef.h>
+#include <stdint.h>
+
 
 void initialize_terminal();
 void terminal_putchar(char c);
