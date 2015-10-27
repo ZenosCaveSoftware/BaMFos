@@ -13,6 +13,7 @@ menuentry "BaMF-OS" {
 	multiboot /boot/BaMF.kernel
 }
 EOF
-grub-mkrescue -d /usr/lib/grub/i386-pc/ -o ../BaMF.iso ../isodir
-[[ -f ../BaMF.vdi ]] && rm ../BaMF.vdi
+grub-mkrescue -d /usr/lib/grub/i386-pc/ -o ../BaMF.iso ../isodir;
+
+[[ -f ../BaMF.vdi ]] && rm ../BaMF.vdi;
 VBoxManage convertfromraw ../BaMF.iso ../BaMF.vdi
