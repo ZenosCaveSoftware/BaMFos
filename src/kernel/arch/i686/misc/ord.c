@@ -1,6 +1,11 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <assert.h>
 #include <kernel/ord.h>
+#include <kernel/mem.h>
 
-sint8_t lessthan_comperator(cast_t a, cast_t b)
+int8_t lessthan_comperator(cast_t a, cast_t b)
 {
 	return (a<b)?1:0;
 }
@@ -17,7 +22,7 @@ ordered_array_t create_ordered_array(uint32_t max, binary_comperator_t compare)
 	return ret;
 }
 
-ordered_array_t place_ordered_array(uintptr_t addr, u3int32_t max, binary_comperator_t compare)
+ordered_array_t place_ordered_array(uintptr_t addr, uint32_t max, binary_comperator_t compare)
 {
 	ordered_array_t ret;
 	ret.values = (void *)addr;
@@ -27,21 +32,22 @@ ordered_array_t place_ordered_array(uintptr_t addr, u3int32_t max, binary_comper
 	ret.compare = compare;
 	return ret;
 }
+
 void destroy_ordered_array(ordered_array_t *arr)
 {
 
 }
 
-void insert_ordered_array(cast_t val, ordered_array_t *arr)
+uint8_t insert_ordered_array(cast_t val, ordered_array_t *arr)
 {
-	assert(array->compare);
+	assert(arr->compare);
 	uint32_t i = 0;
 	while(i < arr->size && arr->compare(arr->values[i], val)) i++;
 	if(arr->size < arr->max)
 	{
 		if(i == arr->size)
 		{
-			arr->val[arr->size++] = val;
+			arr->values[arr->size++] = val;
 		}
 		else 
 		{
@@ -56,7 +62,9 @@ void insert_ordered_array(cast_t val, ordered_array_t *arr)
 			}
 			arr->size++;
 		}
+		return 0;
 	}
+	return 1;
 }
 cast_t lookup_ordered_array(uint32_t i, ordered_array_t *arr)
 {
@@ -69,5 +77,5 @@ void remove_ordered_array(uint32_t i, ordered_array_t *arr)
 	{
 		arr->values[i] = arr->values[++i];
 	}
-	if(i == arr->size) array->size--;
+	if(i == arr->size) arr->size--;
 }
