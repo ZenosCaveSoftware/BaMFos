@@ -126,6 +126,8 @@ void initialize_paging(uint32_t memsize)
     register_int_err_handler(14, page_fault);
 
     switch_page_directory(kernel_directory);
+
+    kernel_heap = create_heap(KERNEL_HEAP_START, KERNEL_HEAP_START + KERNEL_HEAP_INIT, 0x20000000, 0, 0);
 }
 
 void switch_page_directory(page_directory_t *dir)

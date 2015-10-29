@@ -3,7 +3,7 @@
 
 #include <kernel/ord.h>
 
-#define KERNEL_HEAP_START 	0xC0000000
+#define KERNEL_HEAP_START 	0x800000
 #define KERNEL_HEAP_INIT	0x100000
 #define HEAP_INDEX			0x20000
 #define HEAP_MAGIC			0xDEADFADE
