@@ -1,5 +1,5 @@
 #ifndef _KERNEL_GDT_H
-#define _KERNEL_GDT_H
+#define _KERNEL_GDT_H 1
 
 #if !defined(__cpluscplus)
 #include <stdbool.h>

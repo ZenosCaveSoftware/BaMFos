@@ -90,13 +90,14 @@ void terminal_writehex(const uint32_t data)
 	char *p = &str[sizeof(str) - 1];
 	*p = '\0';
 	val = tmp / 16;
-	*--p = ('0' + (char) (tmp - val * 16));
+	tmp2 = tmp - val * 16;
+	*--p = (tmp2 >= 0xa) ? (char) ('a' + tmp2 - 0xa) : (char) ('0' + tmp2);
 	tmp = val;
 	while(tmp != 0)
 	{
 		val = tmp / 16;
 		tmp2 = tmp - val * 16;
-		*--p = (tmp2 < 10) ? ('0' + (char) (tmp2)) : ('a' + (char) (tmp2 - 10));
+		*--p = (tmp2 >= 0xa) ? (char) ('a' + tmp2 - 0xa) : (char) ('0' + tmp2);
 		tmp = val;
 	}
 	terminal_write(p, strlen(p));

@@ -2,9 +2,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <kernel/alloc.h>
 #include <kernel/mem.h>
-#include <kernel/rwcr.h>
 #include <kernel/paging.h>
+#include <kernel/rwcr.h>
 #include <kernel/panic.h>
 #include <kernel/tty.h>
 
@@ -15,7 +16,7 @@ uint32_t *frames;
 uint32_t nframes;
 
 extern uintptr_t placement_address;
-extern uintptr_t heap_end;
+extern heap_t *kernel_heap;
 
 #define INDEX_FROM_BIT(a) ((a) / 0x20)
 #define OFFSET_FROM_BIT(a) ((a) % 0x20)
@@ -110,6 +111,23 @@ void initialize_paging(uint32_t memsize)
     uintptr_t physical;
     kernel_directory = (page_directory_t *)kmalloc_ap(sizeof(page_directory_t), &physical);
     memset(kernel_directory, 0, sizeof(page_directory_t));
+
+    int i = 0;
+    for (i = KERNEL_HEAP_START; i < KERNEL_HEAP_START+KERNEL_HEAP_INIT; i += 0x1000)
+        get_page(i, 1, kernel_directory);
+
+    i = 0;
+    while(i < placement_address)
+    {
+        alloc_frame( get_page(i, 1, kernel_directory), 0, 0);
+        i += 0x1000;
+    }
+
+    register_int_err_handler(14, page_fault);
+
+    switch_page_directory(kernel_directory);
+
+    kernel_heap = create_heap(KERNEL_HEAP_START, KERNEL_HEAP_START + KERNEL_HEAP_INIT, 0x20000000, 0, 0);
 }
 
 void switch_page_directory(page_directory_t *dir)
