@@ -23,6 +23,7 @@ include $(patsubst %,\
 
 KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crti.s, $(KSRC))
 KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crtn.s, $(KSRC))
+KSRC := $(filter-out kernel/arch/$(ARCH)/boot/boot.S, $(KSRC))
 
 CRTI_OBJ:=$(ARCHDIR)/boot/crti.o
 CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtbegin.o)
@@ -54,22 +55,19 @@ $(CRTN_OBJ) 	\
 
 all: BaMF.kernel
 
-BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
-	$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) \
+BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker_hh.ld
+	$(CC) -T $(ARCHDIR)/boot/linker_hh.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) \
 	2>&1 | tee ../log/$@.log
 
 %.c.o: %.c
 	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
-	@echo --- COMPILED $< C CODE ---
 	
 %.S.o: %.S
 	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
-	@echo --- COMPILED $< ASM CODE ---
-
+	
 clean: 
 	rm -f BaMF.kernel $(CRTI_OBJ) $(KOBJ) $(LOBJ) $(CRTN_OBJ) 
-	@echo --- CLEANED DIR ---
-	
+
 install: install-headers install-kernel
 
 install-headers:
@@ -77,8 +75,7 @@ install-headers:
 	for module in $(MODULES); do \
 		cp -RT $$module/include $(DESTDIR)$(INCLUDEDIR); \
 	done
-	@echo --- HEADERS INSTALLED ---
-
+	
 install-kernel: BaMF.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
 	cp BaMF.kernel $(DESTDIR)$(BOOTDIR)

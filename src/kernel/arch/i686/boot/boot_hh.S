@@ -1,6 +1,7 @@
-global _start
-extern kernel_early
-extern kernel_main
+# Not Working yet...
+.global _start
+.extern kernel_early
+.extern kernel_main
 
 .set ALIGN,    1<<0             # align loaded modules on page boundaries
 .set MEMINFO,  1<<1             # provide memory map
@@ -14,45 +15,45 @@ extern kernel_main
 .section .data
 .align 0x1000
 BootPageDirectory:
-	dd 0x00000083
-	times (KERNEL_PAGE_NUMBER - 1) dd 0
-	dd 0x00000083
-	times (1024 - KERNEL_PAGE_NUMBER - 1) dd 0
+	.long 0x00000083
+	times (KERNEL_PAGE_NUMBER - 1) .long 0
+	.long 0x00000083
+	times (1024 - KERNEL_PAGE_NUMBER - 1) .long 0
 
 .section .text
 .align 4
 MultiBootHeader:
-	dd MAGIC
-	dd FLAGS
-	dd CHECKSUM
+	.long MAGIC
+	.long FLAGS
+	.long CHECKSUM
 
 .set STACKSIZE, 0x4000
-set loader, (_start - 0xC0000000)
-global loader
+.set loader, (_start - 0xC0000000)
+.global loader
 
 _start:
-	mov (BootPageDirectory - KERNEL_VIRTUAL_BASE), ecx
-	mov ecx, cr3
+	mov (BootPageDirectory - KERNEL_VIRTUAL_BASE), %ecx
+	mov %ecx, %cr3
 
 
-	mov cr4, ecx
-	or 	0x00000010, ecx
-	mov ecx, cr4
+	mov %cr4, %ecx
+	or 	0x00000010, %ecx
+	mov %ecx, %cr4
 
-	mov cr0, ecx
-    or 0x80000000, ecx
-    mov ecx, cr0
+	mov %cr0, %ecx
+    or 0x80000000, %ecx
+    mov %ecx, %cr0
 
-    lea  [StartinHigherHalf], ecx
-    jmp ecx
+    lea  [StartinHigherHalf], %ecx
+    jmp %ecx
 
 StartinHigherHalf:
 	mov dword 0, [BootPageDirectory]
 	invlpg [0]
 
-	mov stack+STACKSIZE, esp
-	push eax
-	push ebx
+	mov stack+STACKSIZE, %esp
+	push %eax
+	push %ebx
 
 	cli
 

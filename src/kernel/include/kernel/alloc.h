@@ -9,7 +9,7 @@
 
 typedef struct heap_struct
 {
-	bin_heap_t index;
+	void * index;
 	uintptr_t start;
 	uintptr_t end;
 	uintptr_t max;
