@@ -38,7 +38,18 @@ uint32_t inl(uint16_t port)
 	return ret;
 }
 
-void io_wait(void)
+void io_wait()
 {
 	__asm__ __volatile__ ( "outb %%al, $0x80" : : "a"(0) );
+}
+
+uint8_t one_count(uint32_t value);
+{
+	int cnt = 0;
+	while(value)
+	{
+		cnt += value & 0x1;
+		value >>= 1;
+	}
+	return cnt;
 }

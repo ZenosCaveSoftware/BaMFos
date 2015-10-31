@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <kernel/mem.h>
 #include <kernel/paging.h>
-#include <kernel/ord.h>
 #include <kernel/alloc.h>
 
 extern uint32_t end;

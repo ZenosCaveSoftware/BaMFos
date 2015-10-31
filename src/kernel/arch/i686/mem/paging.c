@@ -134,7 +134,8 @@ void switch_page_directory(page_directory_t *dir)
 {
     current_directory = dir;
     write_cr3((uint32_t)&dir->tables_physical);
-    write_cr0(read_cr0() | 0x80000000); // Enable paging!
+    write_cr4(read_cr4() | 0x00000010); // Set PSE;
+    write_cr0(read_cr0() | 0x80000000); // Set PG;
 }
 
 page_entry_t *get_page(uint32_t address, int make, page_directory_t *dir)

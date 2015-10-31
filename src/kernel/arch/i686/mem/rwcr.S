@@ -30,3 +30,17 @@ write_cr3:
 	mov %eax, %cr3
 	pop %ebp
 	ret
+
+.global read_cr4
+read_cr4:
+	mov %cr4, %eax
+	ret
+
+.global write_cr4
+write_cr4:
+	push %ebp
+	mov %esp, %ebp
+	mov 8(%ebp), %eax
+	mov %eax, %cr4
+	pop %ebp
+	ret
