@@ -7,9 +7,24 @@
 #define HEAP_MAGIC			0xDEADFADE
 #define HEAP_MIN_SIZE		0x70000
 
+typedef void *type_t;
+
+typedef struct heap_header_struct
+{
+	uint32_t size;
+	uint8_t is_free;
+	uintptr_t next;
+} heap_header_t;
+
+typedef struct heap_footer_struct
+{
+	uint32_t size;
+	uintptr_t prev;
+} heap_footer_t;
+
 typedef struct heap_struct
 {
-	bin_heap_t index;
+	uintptr_t *bin_start;
 	uintptr_t start;
 	uintptr_t end;
 	uintptr_t max;

@@ -43,7 +43,7 @@ void io_wait()
 	__asm__ __volatile__ ( "outb %%al, $0x80" : : "a"(0) );
 }
 
-uint8_t one_count(uint32_t value);
+uint8_t one_count(uint32_t value)
 {
 	int cnt = 0;
 	while(value)
