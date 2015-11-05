@@ -31,9 +31,11 @@ typedef struct page_directory
 void alloc_frame(page_entry_t *page, int32_t is_kernel, int32_t is_writeable);
 void free_frame(page_entry_t *page);
 
-void initialize_paging();
+void initialize_paging(uint32_t memsize);
+void initialize_heap();
 void switch_page_directory(page_directory_t *new_dir);
 page_entry_t *get_page(uintptr_t address, int32_t make, page_directory_t *dir);
+void *general_protection_fault(void *ctx, uint32_t err_code);
 void *page_fault(void *ctx, uint32_t err_code);
 
 #endif
