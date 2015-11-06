@@ -135,9 +135,9 @@ void initialize_heap()
 
 	register_int_err_handler(14, page_fault);	
 
-	switch_page_directory(kernel_directory);
-
 	kernel_heap = create_heap(KERNEL_HEAP_START, KERNEL_HEAP_END, 0x20000000, 0, 0);
+
+	switch_page_directory(kernel_directory);
 }
 
 void switch_page_directory(page_directory_t *dir)

@@ -25,12 +25,10 @@ heap_t *create_heap(uintptr_t start, uintptr_t end, uintptr_t max, uint8_t s, ui
 {
 
 	heap_t *heap = (heap_t *)kmalloc(sizeof(heap_t));
-	terminal_writestring("heap alloc'd  ...\n");
 	assert(!start&0xFFF);
 	assert(!end&0xFFF);
 
 	heap->head = (heap_header_t *)(start = (start + sizeof(heap_t) + 0xFFF) & ~(0xFFF));
-	terminal_writestring("            head addr set ...\n");
 	
 	heap->head->size = end - start;
 	heap->head->is_free = 1;
