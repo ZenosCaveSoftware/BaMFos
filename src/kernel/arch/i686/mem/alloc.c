@@ -46,7 +46,17 @@ heap_t *create_heap(uintptr_t start, uintptr_t end, uintptr_t max, uint8_t s, ui
 
 void *khalloc(uint32_t size, uint8_t align, heap_t *heap)
 {
-	return (void *) NULL;
+	(heap_header_t *) head_ptr = heap->head;
+	while(head_ptr &&
+		head_ptr->size < size + sizeof(heap_header_t) + sizeof(heap_footer_t) 
+		&& head_ptr->next)
+		head_ptr = head_ptr->next;
+
+	if(head_ptr && head_ptr->is_free &&
+		head_ptr->size >= size + sizeof(heap_header_t) + sizeof(heap_footer_t))
+	{
+		
+	}
 }
 
 void khfree(void *p, heap_t *heap)
