@@ -25,7 +25,7 @@ static void set_frame(uintptr_t addr)
 {
 	if(addr < nframes * 0x1000)
 	{
-		uint32_t frame = addr >> 12;
+		uint32_t frame = addr/0x1000;
 		uint32_t idx = INDEX_FROM_BIT(frame);
 		uint32_t off = OFFSET_FROM_BIT(frame);
 		frames[idx] |= (0x1 << off);
@@ -130,14 +130,15 @@ void initialize_heap()
 	for(uintptr_t i = 0x0; i < placement_address; i += 0x1000)
 		alloc_frame( get_page(i, 1, kernel_directory), 1, 0);
 	
-	for (uintptr_t i = KERNEL_HEAP_START; i < KERNEL_HEAP_START+KERNEL_HEAP_INIT; i += 0x1000)
+	for (uintptr_t i = KERNEL_HEAP_START; i < KERNEL_HEAP_START + KERNEL_HEAP_INIT; i += 0x1000)
 		get_page(i, 1, kernel_directory);
 
 	register_int_err_handler(14, page_fault);	
+	
+	kernel_heap = create_heap(KERNEL_HEAP_START, KERNEL_HEAP_START + KERNEL_HEAP_INIT, KERNEL_HEAP_END, 0, 0);
 
 	switch_page_directory(kernel_directory);
 
-	kernel_heap = create_heap(KERNEL_HEAP_START, KERNEL_HEAP_END, 0x20000000, 0, 0);
 }
 
 void switch_page_directory(page_directory_t *dir)
