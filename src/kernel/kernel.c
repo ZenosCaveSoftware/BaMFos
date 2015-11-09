@@ -24,9 +24,9 @@ void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 	__asm__ __volatile__("sti");
 	terminal_writestring("DONE\n[PAGE]  ... ");
 	initialize_paging(mboot->mem_upper + mboot->mem_lower);
-	terminal_writestring("DONE\n[HEAP]  ... ");
-	initialize_heap();
-	terminal_writestring("DONE\n");
+	//terminal_writestring("DONE\n[HEAP]  ... ");
+	//initialize_heap();
+	//terminal_writestring("DONE\n");
 }
 
 void kernel_main()

@@ -72,8 +72,8 @@ void alloc_frame(page_entry_t *page, int32_t is_kernel, int32_t is_writeable)
 	if (page->frame != 0)
 	{
 		page->present = 1;
-		page->rw	  = (is_writeable == 1) ? 1 : 0;
-		page->user	= (is_kernel == 1)	? 0 : 1;
+		page->rw	  = (is_writeable) ? 1 : 0;
+		page->user	= (is_kernel)	? 0 : 1;
 		return;
 	}
 	else
@@ -90,6 +90,16 @@ void alloc_frame(page_entry_t *page, int32_t is_kernel, int32_t is_writeable)
 		page->user = (is_kernel) ? 0 : 1;
 		page->frame = idx;
 	}
+}
+
+void direct_frame(page_entry_t * page, int32_t is_kernel, int32_t is_writeable, uintptr_t addr)
+{
+	page->present = 1;
+	page->rw = (is_writeable) ? 1 : 0;
+	page->user = (is_kernel) ? 0 : 1;
+	page->frame = addr / 0x1000;
+
+	set_frame(addr);
 }
 
 void free_frame(page_entry_t *page)
@@ -120,24 +130,43 @@ void initialize_paging(uint32_t memsize)
 	memset(kernel_directory, 0, sizeof(page_directory_t));
 
 	register_int_err_handler(13, general_protection_fault);
-}
 
-void initialize_heap()
-{
-	//get_page(0,1,kernel_directory)->present = 0;
-	//set_frame(0);
+#if 1
+	get_page(0,1,kernel_directory)->present = 0;
+	set_frame(0);
 
-	for(uintptr_t i = 0x0; i < placement_address; i += 0x1000)
-		alloc_frame( get_page(i, 1, kernel_directory), 1, 0);
+	for(uintptr_t i = 0x1000; i < placement_address+0x3000; i += 0x1000)
+#else
+	for(uintptr_t i = 0x0; i < placement_address+0x3000; i += 0x1000)
+#endif
+	{
+		direct_frame( get_page(i, 1, kernel_directory), 1, 0, i);
+	}
 	
-	for (uintptr_t i = KERNEL_HEAP_START; i < KERNEL_HEAP_START + KERNEL_HEAP_INIT; i += 0x1000)
-		get_page(i, 1, kernel_directory);
-
 	register_int_err_handler(14, page_fault);	
 	
-	kernel_heap = create_heap(KERNEL_HEAP_START, KERNEL_HEAP_START + KERNEL_HEAP_INIT, KERNEL_HEAP_END, 0, 0);
+	kernel_directory->physical_addr = (uintptr_t)kernel_directory->tables_physical;
+
+	uintptr_t heap_start = KERNEL_HEAP_START;
+
+	if(heap_start <= placement_address + 0x3000)
+	{
+		heap_start = placement_address + 0x100000;
+	}
+	
+	for (uintptr_t i = placement_address + 0x3000; i < heap_start; i += 0x1000)
+	{
+		alloc_frame(get_page(i, 1, kernel_directory), 1, 0);
+	}
+
+	for(uintptr_t i = heap_start; i < heap_start + KERNEL_HEAP_INIT; i += 0x1000)
+	{
+		get_page(i, 1, kernel_directory);
+	}
 
 	switch_page_directory(kernel_directory);
+
+	kernel_heap = create_heap(heap_start, heap_start + KERNEL_HEAP_INIT, KERNEL_HEAP_END, 0, 0);
 }
 
 void switch_page_directory(page_directory_t *dir)
