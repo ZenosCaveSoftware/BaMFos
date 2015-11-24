@@ -129,8 +129,7 @@ void initialize_paging(uint32_t memsize)
 	kernel_directory = (page_directory_t *)kmalloc_ap(sizeof(page_directory_t), &physical);
 	memset(kernel_directory, 0, sizeof(page_directory_t));
 
-	register_int_err_handler(13, general_protection_fault);
-
+	register_isr_handler(13, general_protection_fault);
 #if 1
 	get_page(0,1,kernel_directory)->present = 0;
 	set_frame(0);
@@ -143,7 +142,7 @@ void initialize_paging(uint32_t memsize)
 		direct_frame( get_page(i, 1, kernel_directory), 1, 0, i);
 	}
 	
-	register_int_err_handler(14, page_fault);	
+	register_isr_handler(14, page_fault);	
 	
 	kernel_directory->physical_addr = (uintptr_t)kernel_directory->tables_physical;
 
@@ -198,8 +197,9 @@ page_entry_t *get_page(uint32_t address, int make, page_directory_t *dir)
 		return NULL;
 	}
 }
-void *general_protection_fault(void *ctx, uint32_t err_code)
+void *general_protection_fault(registers_t *regs)
 {
+	uint32_t err_code = regs->err_code;
 	terminal_writestring("Gen Protection fault");
 	if(err_code)
 	{
@@ -222,8 +222,9 @@ void *general_protection_fault(void *ctx, uint32_t err_code)
 	return NULL;
 }
 
-void *page_fault(void *ctx, uint32_t err_code)
+void *page_fault(registers_t *regs)
 {
+	uint32_t err_code = regs->err_code;
 	int32_t present   = !(err_code & 0x1); // Page not present
 	int32_t rw = err_code & 0x2;		   // Write operation?
 	int32_t us = err_code & 0x4;		   // Processor was in user-mode?

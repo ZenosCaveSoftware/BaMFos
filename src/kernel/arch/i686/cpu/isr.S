@@ -3,7 +3,7 @@
 
 .macro ISR_NOERR idx
 	.global _isr\idx
-	isr\idx:
+	_isr\idx:
 		cli
 		push $0
 		push $\idx
@@ -12,7 +12,7 @@
 
 .macro ISR_ERR idx
 	.global _isr\idx
-	isr\idx:
+	_isr\idx:
 		cli
 		push $\idx
 		jmp isr_common

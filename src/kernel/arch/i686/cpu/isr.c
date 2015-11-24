@@ -8,8 +8,8 @@ static isr_handler_t isrfuncs[256] = { 0 };
 void register_irq_handler(uint8_t n, irq_handler_t handler) { irqfuncs[n] = handler; }
 void unregister_irq_handler(uint8_t n) { irqfuncs[n] = 0; }
 
-void register_int_handler(uint8_t n, isr_handler_t handler) { isrfuncs[n] = handler; }
-void unregister_int_handler(uint8_t n) { isrfuncs[n] = 0; }
+void register_isr_handler(uint8_t n, isr_handler_t handler) { isrfuncs[n] = handler; }
+void unregister_isr_handler(uint8_t n) { isrfuncs[n] = 0; }
 
 
 //this function is called in all the IRQs

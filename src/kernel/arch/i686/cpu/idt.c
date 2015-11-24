@@ -5,7 +5,6 @@
 #include <kernel/utils.h>
 #include <kernel/tty.h>
 
-
 extern void _isr0(void);
 extern void _isr1(void);
 extern void _isr2(void);

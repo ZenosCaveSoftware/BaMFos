@@ -35,7 +35,7 @@ void initialize_paging(uint32_t memsize);
 //void initialize_heap();
 void switch_page_directory(page_directory_t *new_dir);
 page_entry_t *get_page(uintptr_t address, int32_t make, page_directory_t *dir);
-void *general_protection_fault(void *ctx, uint32_t err_code);
-void *page_fault(void *ctx, uint32_t err_code);
+void *general_protection_fault(registers_t *regs);
+void *page_fault(registers_t *regs);
 
 #endif
