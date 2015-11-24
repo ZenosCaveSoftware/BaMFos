@@ -8,10 +8,10 @@
 
 typedef struct registers
 {
-   uint32_t ds;                  // Data segment selector
-   uint32_t edi, esi, ebp, unused, ebx, edx, ecx, eax; // Pushed by pusha.
-   uint32_t int_no, err_code;    // Interrupt number and error code (if applicable)
-   uint32_t eip, cs, eflags, esp, ss; // Pushed by the processor automatically.
+   uint32_t gs, fs, es, ds;                  		// Segment selectors
+   uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
+   uint32_t int_no, err_code;    					// Interrupt number and error code (if applicable)
+   uint32_t eip, cs, eflags, useresp, ss; 			// Pushed by the processor automatically.
 } registers_t;
 
 #define PIC1			0x20	/* IO base address for master PIC */
@@ -39,13 +39,15 @@ typedef struct registers
 #define ICW4_SFNM		0x10	/* Special fully nested (not) */
 
 
-typedef void *(*irq_t)(void *);					/* interrupt request handler type */
-typedef void *(*isr_t)(void *); 				/* interrupt service routine type */
-typedef void *(*isr_err_t)(void *, uint32_t);	/* interrupt service routine w/ error type */
+typedef void *(*isr_handler_t)(registers_t *);	/* interrupt service routine handler type */
+typedef int *(*irq_handler_t)(registers_t *);	/* interrupt request handler type */
 
-void register_irq_handler(uint8_t n, irq_t handler);
-void register_int_handler(uint8_t n, isr_t handler);
-void register_int_err_handler(uint8_t n, isr_err_t handler);
+
+void register_isr_handler(uint8_t n, isr_handler_t handler);
+void unregister_isr_handler(uint8_t n);
+
+void register_irq_handler(uint8_t n, irq_handler_t handler);
+void unregister_irq_handler(uint8_t n);
 
 void irqfunc(uint32_t irqnum, void *ctx);
 void intfunc(uint32_t irqnum, void *ctx);
@@ -59,158 +61,4 @@ static uint16_t __pic_get_irq_reg(int ocw3);
 uint16_t pic_get_irr(void);
 uint16_t pic_get_isr(void);
 
-
-/* Macro to create hardware interrupt handling functions. */
-/* It will call "irqfunc" with the register context and the IRQ number as parameters. */
-#define DEFIRQWRAPPER(irqnum)\
-void *irq##irqnum##handler(void)\
-{\
-	volatile void *addr;\
-	__asm__ goto("jmp %l[endofISR]" ::: "memory" : endofISR);\
-	__asm__ __volatile__(".align 16" ::: "memory");\
-	startofISR:\
-	__asm__ __volatile__("pushal\n\tpushl %%ebp\n\tmovl %%esp, %%ebp\n\tcld" ::: "memory");\
-	__asm__ __volatile__(\
-		"pushl %%ds       \n\t"\
-		"pushl %%es       \n\t"\
-		"movw $16, %%cx   \n\t"\
-		"movw %%cx, %%ds  \n\t"\
-		"movw %%cx, %%es  \n\t"\
-		"pushl %%ebp      \n\t"\
-		"addl $4, (%%esp) \n\t"\
-		"pushl %%ebx      \n\t"\
-		"call *%%eax      \n\t"\
-		"addl $8, %%esp       "\
-		:: "a"(irqfunc), "b"((uint32_t) 0) : "memory");\
-	__asm__ __volatile__("popl %%es\n\tpopl %%ds\n\tleave\n\tpopal\n\tiret" ::: "memory");\
-	endofISR:\
-	__asm__ goto(\
-		".intel_syntax noprefix\n\t"\
-		"mov eax, offset %l[startofISR]\n\t"\
-		"mov [ebx], eax\n\t"\
-		".att_syntax"\
-		:: "b"(&addr) : "eax", "memory" : startofISR);\
-	return((void *) addr);\
-}
-
-/* Macro to create sotfware interrupt handling functions. */
-/* It will call "intfunc" with the register context and the interrupt number as parameters. */
-#define DEFINTWRAPPER(intnum)\
-void *int##intnum##handler(void)\
-{\
-	volatile void *addr;\
-	__asm__ goto("jmp %l[endofISR]" ::: "memory" : endofISR);\
-	__asm__ __volatile__(".align 16" ::: "memory");\
-	startofISR:\
-	__asm__ __volatile__("pushal\n\tpushl %%ebp\n\tmovl %%esp, %%ebp\n\tcld" ::: "memory");\
-	__asm__ __volatile__(\
-		"pushl %%ds       \n\t"\
-		"pushl %%es       \n\t"\
-		"movw $16, %%cx   \n\t"\
-		"movw %%cx, %%ds  \n\t"\
-		"movw %%cx, %%es  \n\t"\
-		"pushl %%ebp      \n\t"\
-		"addl $4, (%%esp) \n\t"\
-		"pushl %%ebx      \n\t"\
-		"call *%%eax      \n\t"\
-		"addl $8, %%esp       "\
-		:: "a"(intfunc), "b"((uint32_t) intnum) : "memory");\
-	__asm__ __volatile__("popl %%es\n\tpopl %%ds\n\tleave\n\tpopal\n\tiret" ::: "memory");\
-	endofISR:\
-	__asm__ goto(\
-		".intel_syntax noprefix         \n\t"\
-		"mov eax, offset %l[startofISR] \n\t"\
-		"mov [ebx], eax                 \n\t"\
-		".att_syntax                        "\
-		:: "b"(&addr) : "eax", "memory" : startofISR);\
-	return((void *) addr);\
-}
-
-/*  Macro to create exception handling functions, for exceptions with error code. */
-/* It will call intfunc_err, with the error code, the register context, and the interrupt number as parameters. */
-#define DEFINTWRAPPER_ERR(intnum)\
-void *int##intnum##handler(void)\
-{\
-	volatile void *addr;\
-	__asm__ goto("jmp %l[endofISR]" ::: "memory" : endofISR);\
-	__asm__ __volatile__(".align 16" ::: "memory");\
-	startofISR:\
-	__asm__ __volatile__(\
-		"pushal                \n\t"\
-		"pushl %%ebp           \n\t"\
-		"movl %%esp, %%ebp     \n\t"\
-		"pushl %%ds            \n\t"\
-		"pushl %%es            \n\t"\
-		"movw $16, %%cx        \n\t"\
-		"movw %%cx, %%ds       \n\t"\
-		"movw %%cx, %%es       \n\t"\
-		"movl 36(%%ebp), %%edx \n\t"\
-		"movl %%ebp, %%esi     \n\t"\
-		"addl $32, %%esi       \n\t"\
-		"movl %%esi, %%edi     \n\t"\
-		"addl $4, %%edi        \n\t"\
-		"movl $11, %%ecx       \n\t"\
-		"std                   \n\t"\
-		"rep movsl             \n\t"\
-		"add $4, %%esp         \n\t"\
-		"cld                       "\
-		::: "memory");\
-	__asm__ __volatile__(\
-		"pushl %%edx       \n\t"\
-		"pushl %%ebp       \n\t"\
-		"addl $8, (%%esp)  \n\t"\
-		"pushl %%ebx       \n\t"\
-		"call *%%eax       \n\t"\
-		"addl $12, %%esp       "\
-		:: "a"(intfunc_err), "b"((uint32_t) intnum) : "memory");\
-	__asm__ __volatile__("popl %%es\n\tpopl %%ds\n\tleave\n\tpopal\n\tiret" ::: "memory");\
-	endofISR:\
-	__asm__ goto(\
-		".intel_syntax noprefix         \n\t"\
-		"mov eax, offset %l[startofISR] \n\t"\
-		"mov [ebx], eax                 \n\t"\
-		".att_syntax                        "\
-		:: "b"(&addr) : "eax", "memory" : startofISR);\
-	return((void *) addr);\
-}
-//IRQs (the 16 IRQs the PIC has)
-void *irq0handler(void);
-void *irq1handler(void);
-void *irq2handler(void);
-void *irq3handler(void);
-void *irq4handler(void);
-void *irq5handler(void);
-void *irq6handler(void);
-void *irq7handler(void);
-void *irq8handler(void);
-void *irq9handler(void);
-void *irq10handler(void);
-void *irq11handler(void);
-void *irq12handler(void);
-void *irq13handler(void);
-void *irq14handler(void);
-void *irq15handler(void);
- 
-//exceptions without error code
-void *int0handler(void);//division by 0
-void *int1handler(void);//debug
-void *int2handler(void);//NMI
-void *int3handler(void);//breakpoint
-void *int4handler(void);//INTO
-void *int5handler(void);//BOUND
-void *int6handler(void);//invalid opcode
-void *int7handler(void);//coprocessor not available
-void *int9handler(void);//coprocessor segment overrun
-void *int16handler(void);//coprocessor error
- 
-//exceptions with error code
-void *int8handler(void);//double fault
-void *int10handler(void);//TSS error
-void *int11handler(void);//segment not present
-void *int12handler(void);//stack fault
-void *int13handler(void);//general protection fault
-void *int14handler(void);//page fault
- 
-//software interrupts
-void *int0x80handler(void);//system call
 #endif
