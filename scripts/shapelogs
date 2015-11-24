@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-for file in `ls ../log`; do
+for file in `ls ../log/*.c.log`; do
 
 	if [[ "x$file" != "xBaMF.kernel.log" ]]; then
 		sed -i -e 's/^.*\/\(.*\) error: \(.*\)/ERR -- \1 <- \2/g' ../log/$file;

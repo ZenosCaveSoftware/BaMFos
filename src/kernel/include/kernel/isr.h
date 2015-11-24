@@ -49,9 +49,8 @@ void unregister_isr_handler(uint8_t n);
 void register_irq_handler(uint8_t n, irq_handler_t handler);
 void unregister_irq_handler(uint8_t n);
 
-void irqfunc(uint32_t irqnum, void *ctx);
-void intfunc(uint32_t irqnum, void *ctx);
-void intfunc_err(uint32_t irqnum, void *ctx, uint32_t errcode);
+void irq_handler(registers_t *regs);
+void fault_handler(registers_t *regs);
 
 uint8_t pic_isnormalIRQ(uint32_t irqnum);
 void pic_EOI(uint32_t irqnum);

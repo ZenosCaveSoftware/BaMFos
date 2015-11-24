@@ -78,6 +78,6 @@ isr_common:
 	pop %ds
 
 	popa
-	add $8, $esp
+	add $8, %esp
 	iret
 	

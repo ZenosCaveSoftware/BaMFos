@@ -5,6 +5,58 @@
 #include <kernel/utils.h>
 #include <kernel/tty.h>
 
+
+extern void _isr0(void);
+extern void _isr1(void);
+extern void _isr2(void);
+extern void _isr3(void);
+extern void _isr4(void);
+extern void _isr5(void);
+extern void _isr6(void);
+extern void _isr7(void);
+extern void _isr8(void);
+extern void _isr9(void);
+extern void _isr10(void);
+extern void _isr11(void);
+extern void _isr12(void);
+extern void _isr13(void);
+extern void _isr14(void);
+extern void _isr15(void);
+extern void _isr16(void);
+extern void _isr17(void);
+extern void _isr18(void);
+extern void _isr19(void);
+extern void _isr20(void);
+extern void _isr21(void);
+extern void _isr22(void);
+extern void _isr23(void);
+extern void _isr24(void);
+extern void _isr25(void);
+extern void _isr26(void);
+extern void _isr27(void);
+extern void _isr28(void);
+extern void _isr29(void);
+extern void _isr30(void);
+extern void _isr31(void);
+extern void _isr127(void);
+
+extern void _irq0(void);
+extern void _irq1(void);
+extern void _irq2(void);
+extern void _irq3(void);
+extern void _irq4(void);
+extern void _irq5(void);
+extern void _irq6(void);
+extern void _irq7(void);
+extern void _irq8(void);
+extern void _irq9(void);
+extern void _irq10(void);
+extern void _irq11(void);
+extern void _irq12(void);
+extern void _irq13(void);
+extern void _irq14(void);
+extern void _irq15(void);
+
 idt_entry_t idt[256];
 idt_ptr_t 	idt_ptr;
 void initialize_idt()
@@ -13,24 +65,39 @@ void initialize_idt()
 	idt_ptr.base = (uint32_t)&idt;
 	memset((void *)idt_ptr.base, 0, sizeof (idt_entry_t) * 256);	
 
-	fillidte(idt+0, 8, int0handler(), 0xe, 0);//exception handlers
-	fillidte(idt+1, 8, int1handler(), 0xe, 0);
-	fillidte(idt+2, 8, int2handler(), 0xe, 0);
-	fillidte(idt+3, 8, int3handler(), 0xe, 0);
-	fillidte(idt+4, 8, int4handler(), 0xe, 0);
-	fillidte(idt+5, 8, int5handler(), 0xe, 0);
-	fillidte(idt+6, 8, int6handler(), 0xe, 0);
-	fillidte(idt+7, 8, int7handler(), 0xe, 0);
-	fillidte(idt+8, 8, int8handler(), 0xe, 0);
-	fillidte(idt+9, 8, int9handler(), 0xe, 0);
-	fillidte(idt+10, 8, int10handler(), 0xe, 0);
-	fillidte(idt+11, 8, int11handler(), 0xe, 0);
-	fillidte(idt+12, 8, int12handler(), 0xe, 0);
-	fillidte(idt+13, 8, int13handler(), 0xe, 0);
-	fillidte(idt+14, 8, int14handler(), 0xe, 0);
-	fillidte(idt+16, 8, int16handler(), 0xe, 0);
-
-	fillidte(idt+0x80, 8, int0x80handler(), 0xe, 3); //system call handler	
+	fillidte(0, 8, _isr0, 0xe, 0);
+	fillidte(1, 8, _isr1, 0xe, 0);
+	fillidte(2, 8, _isr2, 0xe, 0);
+	fillidte(3, 8, _isr3, 0xe, 0);
+	fillidte(4, 8, _isr4, 0xe, 0);
+	fillidte(5, 8, _isr5, 0xe, 0);
+	fillidte(6, 8, _isr6, 0xe, 0);
+	fillidte(7, 8, _isr7, 0xe, 0);
+	fillidte(8, 8, _isr8, 0xe, 0);
+	fillidte(9, 8, _isr9, 0xe, 0);
+	fillidte(10, 8, _isr10, 0xe, 0);
+	fillidte(11, 8, _isr11, 0xe, 0);
+	fillidte(12, 8, _isr12, 0xe, 0);
+	fillidte(13, 8, _isr13, 0xe, 0);
+	fillidte(14, 8, _isr14, 0xe, 0);
+	fillidte(15, 8, _isr15, 0xe, 0);
+	fillidte(16, 8, _isr16, 0xe, 0);
+	fillidte(17, 8, _isr17, 0xe, 0);
+	fillidte(18, 8, _isr18, 0xe, 0);
+	fillidte(19, 8, _isr19, 0xe, 0);
+	fillidte(20, 8, _isr20, 0xe, 0);
+	fillidte(21, 8, _isr21, 0xe, 0);
+	fillidte(22, 8, _isr22, 0xe, 0);
+	fillidte(23, 8, _isr23, 0xe, 0);
+	fillidte(24, 8, _isr24, 0xe, 0);
+	fillidte(25, 8, _isr25, 0xe, 0);
+	fillidte(26, 8, _isr26, 0xe, 0);
+	fillidte(27, 8, _isr27, 0xe, 0);
+	fillidte(28, 8, _isr28, 0xe, 0);
+	fillidte(29, 8, _isr29, 0xe, 0);
+	fillidte(30, 8, _isr30, 0xe, 0);
+	fillidte(31, 8, _isr31, 0xe, 0);
+	fillidte(127, 8, _isr127, 0xe, 0);
 
 	idt_flush((uint32_t)&idt_ptr);
 }
@@ -39,34 +106,33 @@ void initialize_idt()
 void initialize_irq()
 {
 	pic_remap(0x20, 0x28);
-
-	fillidte(idt + 32, 8, irq0handler(), 0xe, 0);//IRQ handlers;
-	fillidte(idt + 33, 8, irq1handler(), 0xe, 0);
-	fillidte(idt + 34, 8, irq2handler(), 0xe, 0);
-	fillidte(idt + 35, 8, irq3handler(), 0xe, 0);
-	fillidte(idt + 36, 8, irq4handler(), 0xe, 0);
-	fillidte(idt + 37, 8, irq5handler(), 0xe, 0);
-	fillidte(idt + 38, 8, irq6handler(), 0xe, 0);
-	fillidte(idt + 39, 8, irq7handler(), 0xe, 0);
-	fillidte(idt + 40, 8, irq8handler(), 0xe, 0);
-	fillidte(idt + 41, 8, irq9handler(), 0xe, 0);
-	fillidte(idt + 42, 8, irq10handler(), 0xe, 0);
-	fillidte(idt + 43, 8, irq11handler(), 0xe, 0);
-	fillidte(idt + 44, 8, irq12handler(), 0xe, 0);
-	fillidte(idt + 45, 8, irq13handler(), 0xe, 0);
-	fillidte(idt + 46, 8, irq14handler(), 0xe, 0);
-	fillidte(idt + 47, 8, irq15handler(), 0xe, 0);
+	fillidte(32, 8, _irq0, 0xe, 0);
+	fillidte(33, 8, _irq1, 0xe, 0);
+	fillidte(34, 8, _irq2, 0xe, 0);
+	fillidte(35, 8, _irq3, 0xe, 0);
+	fillidte(36, 8, _irq4, 0xe, 0);
+	fillidte(37, 8, _irq5, 0xe, 0);
+	fillidte(38, 8, _irq6, 0xe, 0);
+	fillidte(39, 8, _irq7, 0xe, 0);
+	fillidte(40, 8, _irq8, 0xe, 0);
+	fillidte(41, 8, _irq9, 0xe, 0);
+	fillidte(42, 8, _irq10, 0xe, 0);
+	fillidte(43, 8, _irq11, 0xe, 0);
+	fillidte(44, 8, _irq12, 0xe, 0);
+	fillidte(45, 8, _irq13, 0xe, 0);
+	fillidte(46, 8, _irq14, 0xe, 0);
+	fillidte(47, 8, _irq15, 0xe, 0);
 }
 
-static void fillidte(idt_entry_t* entry, uint16_t sel, void *offset, uint8_t gate, uint8_t priv)
+static void fillidte(int entry, uint16_t sel, void *offset, uint8_t gate, uint8_t priv)
 {
-	entry->base_low =  (uint16_t)((uint32_t)offset & 0xFFFF);
-	entry->base_high =  (uint16_t)(((uint32_t)offset >> 16) & 0xFFFF);
+	idt[entry].base_low =  (uint16_t)((uint32_t)offset & 0xFFFF);
+	idt[entry].base_high =  (uint16_t)(((uint32_t)offset >> 16) & 0xFFFF);
 
-	entry->selector = sel,
-	entry->zero = 0;
+	idt[entry].selector = sel,
+	idt[entry].zero = 0;
 
-	entry->flags = 0x80 | ((priv & 0x03) << 5) | gate;
+	idt[entry].flags = 0x80 | ((priv & 0x03) << 5) | gate;
 }
 
 

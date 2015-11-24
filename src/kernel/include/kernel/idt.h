@@ -29,7 +29,7 @@ void initialize_idt();
 
 extern void idt_flush(uint32_t);
 
-static void fillidte(idt_entry_t*, uint16_t, void *, uint8_t, uint8_t);
+static void fillidte(int, uint16_t, void *, uint8_t, uint8_t);
 
 
 //isr & irq

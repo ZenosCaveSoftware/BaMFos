@@ -8,15 +8,15 @@ static isr_handler_t isrfuncs[256] = { 0 };
 void register_irq_handler(uint8_t n, irq_handler_t handler) { irqfuncs[n] = handler; }
 void unregister_irq_handler(uint8_t n) { irqfuncs[n] = 0; }
 
-void register_int_handler(uint8_t n, isr_handler_t handler) { intfuncs[n] = handler; }
-void unregister_int_handler(uint8_t n) { intfuncs[n] = 0; }
+void register_int_handler(uint8_t n, isr_handler_t handler) { isrfuncs[n] = handler; }
+void unregister_int_handler(uint8_t n) { isrfuncs[n] = 0; }
 
 
 //this function is called in all the IRQs
 //it will call the corresponding function in the irqfuncs array, as long as it's not NULL (and the interrupt is not spourious)
 //if the called function returns a non-NULL pointer, that pointer will be used as a stack to switch the task
 //this function correctly acknowledges normal and spourious hardware interrupts
-void irqfunc(registers_t *regs)
+void irq_handler(registers_t *regs)
 {
 	void *stack = NULL;
 	irq_handler_t handler = irqfuncs[regs->int_no];
@@ -24,25 +24,25 @@ void irqfunc(registers_t *regs)
 	{
 		if(handler)
 			stack = handler(regs);
-		pic_EOI(irqnum);
+		pic_EOI(regs->int_no);
 		//if(stack)
 			//taskswitch(stack);
 	}
 	else
 	{
-		pic_EOI_spurious(irqnum);
+		pic_EOI_spurious(regs->int_no);
 	}
 }
  
 //this function is called in all the software interrupts, and in exceptions without error code
 //it will call the corresponding function in the intfuncs array, as long as it's not NULL
 //if the called function returns a non-NULL pointer, that pointer will be used as a stack to switch the task
-void fault_handler(uint32_t intnum, void *ctx)
+void fault_handler(registers_t *regs)
 {
 	void *stack = NULL;
 	isr_handler_t handler = isrfuncs[regs->int_no];
 	if(handler)
-		stack = handler(ctx);
+		stack = handler(regs);
 	//if(stack)
 		//taskswitch(stack);
 }
