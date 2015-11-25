@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e
-. ./build
+if [[ $# -ge 1 ]]; then
+	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
+		shift;
+	done
+fi
+if [[ $# -eq 0 ]]; then
+	. ./build;
+	. ./shapelogs;
+fi
 
 [[ -d ../isodir ]] && rm -rf ../isodir 
 mkdir -p ../isodir
@@ -13,7 +21,7 @@ menuentry "BaMF-OS" {
 	multiboot /boot/BaMF.kernel
 }
 EOF
-grub-mkrescue -d /usr/lib/grub/i386-pc/ -o ../BaMF.iso ../isodir;
+grub-mkrescue -o ../BaMF.iso ../isodir;
 
 [[ -f ../BaMF.vdi ]] && rm ../BaMF.vdi;
 VBoxManage convertfromraw ../BaMF.iso ../BaMF.vdi

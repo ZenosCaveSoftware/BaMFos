@@ -1,6 +1,14 @@
 #!/bin/sh
-set -e
-. ./iso
-
-qemu-system-$(./target-triplet-to-arch $(./default-host)) \
--nographic -kernel ../src/BaMF.kernel
+#set -e
+if [[ $# -ge 1 ]]; then
+	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
+		shift;
+	done
+fi
+if [[ $# -eq 0 ]]; then
+	. ./iso
+fi
+echo "Running QEMU..."
+qemu-system-$(./target-triplet-to-arch $(./default-host)) -curses  -cdrom ../BaMF.iso -m 1024 \
+-net user,hostfwd=tcp:5555:22 -net nic
+echo $?

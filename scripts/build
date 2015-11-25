@@ -1,5 +1,13 @@
 #!/bin/sh
-. ./clean
-. ./headers
+set -e
+if [[ $# -ge 1 ]]; then
+	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
+		shift;
+	done
+fi
+if [[ $# -eq 0 ]]; then
+	. ./clean
+	. ./headers
+fi
 
 DESTDIR="$PWD/../sysroot" $MAKE -C ../src install

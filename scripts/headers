@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
-. ./config
-
+if [[ $# -ge 1 ]]; then
+	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
+		shift;
+	done
+fi
+if [[ $# -eq 0 ]]; then
+	. ./config
+fi
 mkdir -p ../sysroot
 mkdir -p ../log

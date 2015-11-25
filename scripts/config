@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 export MAKE=${MAKE:-make}
 export HOST=$(./default-host)
 

@@ -1,5 +1,12 @@
 #!/bin/sh
 set -e
-. ./iso
+if [[ $# -ge 1 ]]; then
+	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
+		shift;
+	done
+fi
+if [[ $# -eq 0 ]]; then
+	. ./iso
+fi
 
-qemu-system-$(./target-triplet-to-arch $(./default-host)) -kernel ../src/BaMF.kernel
+qemu-system-$(./target-triplet-to-arch $(./default-host)) -kernel ../src/BaMF.kernel -m 1024

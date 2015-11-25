@@ -1,5 +1,11 @@
 #!/bin/sh
 set -e
-. ./iso
-
-qemu-system-$(./target-triplet-to-arch $(./default-host)) -cdrom ../BaMF.iso
+if [[ $# -ge 1 ]]; then
+	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
+		shift;
+	done
+fi
+if [[ $# -eq 0 ]]; then
+	. ./iso
+fi
+qemu-system-$(./target-triplet-to-arch $(./default-host)) -cdrom ../BaMF.iso -m 1024
