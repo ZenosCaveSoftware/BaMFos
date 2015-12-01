@@ -11,6 +11,8 @@ size_t terminal_column;
 uint8_t terminal_color;
 uint16_t* terminal_buffer;
 
+void terminal_scroll();
+
 void initialize_terminal()
 {
 	terminal_row = 0;
@@ -47,7 +49,7 @@ void terminal_putchar(char c)
 		terminal_column = 0;
 		if ( ++terminal_row == VGA_HEIGHT )
 		{
-			terminal_row = 0;
+			terminal_scroll();
 		}
 	}
 }
@@ -60,7 +62,7 @@ void terminal_write(const char* data, size_t size)
 			terminal_column = 0;
 			if(++terminal_row == VGA_HEIGHT)
 			{
-				terminal_row = 0;	
+				terminal_scroll();
 			}
 		}
 		else if(data[i] == '\t')
@@ -101,4 +103,14 @@ void terminal_writehex(const uint32_t data)
 		tmp = val;
 	}
 	terminal_write(p, strlen(p));
+}
+
+void terminal_scroll()
+{
+	int i = 0;
+	for(;i < VGA_WIDTH * (VGA_HEIGHT - 1); i++)
+		terminal_buffer[i] = terminal_buffer[i + VGA_WIDTH];
+	for(; i < VGA_WIDTH * VGA_HEIGHT; i++)
+		terminal_buffer[i] = make_vgaentry(' ',  make_color(COLOR_LIGHT_GREY, COLOR_BLACK));
+	--terminal_column;
 }

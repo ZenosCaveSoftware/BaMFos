@@ -8,6 +8,7 @@ fi
 if [[ $# -eq 0 ]]; then
 	. ./build;
 	. ./shapelogs;
+	find ../log -type f -exec cat {} \;
 fi
 
 [[ -d ../isodir ]] && rm -rf ../isodir 

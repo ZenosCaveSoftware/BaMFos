@@ -76,7 +76,7 @@ int printf(const char* restrict format, ...)
 			const char* s = va_arg(parameters, const char*);
 			print(s, strlen(s));
 		}
-		if ( *format == 'd' )
+		else if ( *format == 'd' )
 		{
 			format++;
 			int d = (int) va_arg(parameters, int);

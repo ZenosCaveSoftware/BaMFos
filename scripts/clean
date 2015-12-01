@@ -9,10 +9,10 @@ if [[ $# -eq 0 ]]; then
 	. ./config
 fi
 
-$MAKE -C ../src clean
+$MAKE -s -C ../src clean
 
-rm -rfv ../log
-rm -rfv ../sysroot
-rm -rfv ../isodir
-rm -rfv ../BaMF.iso
-rm -rfv ../BaMF.vdi
+rm -rf ../log
+rm -rf ../sysroot
+rm -rf ../isodir
+rm -rf ../BaMF.iso
+rm -rf ../BaMF.vdi

@@ -8,4 +8,4 @@ fi
 if [[ $# -eq 0 ]]; then
 	. ./iso
 fi
-qemu-system-$(./target-triplet-to-arch $(./default-host)) -cdrom ../BaMF.iso -m 1024
+qemu-system-$(./target-triplet-to-arch $(./default-host)) -cdrom ../BaMF.iso -m 4096

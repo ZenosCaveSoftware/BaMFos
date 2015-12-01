@@ -8,6 +8,8 @@ fi
 if [[ $# -eq 0 ]]; then
 	. ./clean
 	. ./headers
+else
+	. ./config
 fi
 
-DESTDIR="$PWD/../sysroot" $MAKE -C ../src install
+DESTDIR="$PWD/../sysroot" $MAKE -j $(($(nproc) + 1)) -s -C ../src install

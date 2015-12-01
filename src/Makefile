@@ -1,8 +1,8 @@
 
 MODULES = kernel libc
 
-CFLAGS += $(patsubst %,-I%/include,\
-	$(MODULES)) -ffreestanding -nostdlib -lgcc -std=c11 -DNDEBUG
+CFLAGS += $(patsubst %,-I%/include,	$(MODULES)) \
+	-ffreestanding -nostdlib -lgcc -std=c11 -DNDEBUG
 
 ARCH ?= i686
 ARCHDIR := kernel/arch/$(ARCH)
@@ -24,10 +24,10 @@ include $(patsubst %,\
 KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crti.s, $(KSRC))
 KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crtn.s, $(KSRC))
 
-CRTI_OBJ:=$(ARCHDIR)/boot/crti.o
+CRTI_OBJ:=$(ARCHDIR)/boot/crti.S.o
 CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtbegin.o)
 CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtend.o)
-CRTN_OBJ:=$(ARCHDIR)/boot/crtn.o
+CRTN_OBJ:=$(ARCHDIR)/boot/crtn.S.o
 
 KOBJ :=									\
 		$(patsubst %.c,%.c.o,			\
@@ -36,9 +36,9 @@ KOBJ :=									\
 			$(filter %.S,$(KSRC)))		\
 
 LOBJ :=									\
-		$(patsubst %.c,%.o,				\
+		$(patsubst %.c,%.c.o,				\
 			$(filter %.c,$(LSRC)))		\
-		$(patsubst %.S,%.o,				\
+		$(patsubst %.S,%.S.o,				\
 			$(filter %.S,$(LSRC)))		\
 
 OBJ_LINKER :=	\
@@ -49,41 +49,37 @@ $(LOBJ) 		\
 $(CRTEND_OBJ)	\
 $(CRTN_OBJ) 	\
 
-
-.PHONY: all clean install install-headers install-kernel
+SRCS := $(KSRC) $(LSRC)
 
 all: BaMF.kernel
 
+.PHONY: all clean install install-headers install-kernel
+
 BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
-	$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) \
-	2>&1 | tee ../log/$@.log
+	$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 > ../log/$@.log
+	@echo "--- KERNEL LINKED ---"
 
 %.c.o: %.c
-	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
-	@echo --- COMPILED $< C CODE ---
+	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 > ../log/$(shell basename $@ .o).log
+	@echo "--- COMPILED $(shell basename $<) ---"
 	
 %.S.o: %.S
-	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
-	@echo --- COMPILED $< ASM CODE ---
+	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 > ../log/$(shell basename $@ .o).log
+	@echo "--- ASSEMBLED $(shell basename $<) ---"
 
-clean: 
-	rm -f BaMF.kernel $(CRTI_OBJ) $(KOBJ) $(LOBJ) $(CRTN_OBJ) 
-	@echo --- CLEANED DIR ---
-	
 install: install-headers install-kernel
 
 install-headers:
-	mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	for module in $(MODULES); do \
-		cp -RT $$module/include $(DESTDIR)$(INCLUDEDIR); \
-	done
-	@echo --- HEADERS INSTALLED ---
+	@mkdir -p $(DESTDIR)$(INCLUDEDIR)
+	@for module in $(MODULES); do cp -RT $$module/include $(DESTDIR)$(INCLUDEDIR); done
+	@echo "--- HEADERS INSTALLED ---"
 
 install-kernel: BaMF.kernel
-	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp BaMF.kernel $(DESTDIR)$(BOOTDIR)
+	@mkdir -p $(DESTDIR)$(BOOTDIR)
+	@cp BaMF.kernel $(DESTDIR)$(BOOTDIR)
+	@echo "--- KERNEL INSTALLED ---"
 
-#include $(KOBJ:.o=.d) $(LOBJ:.o=.d)
-
-%.d: %.c
-	depend.sh `dirname $*.c` $(CFLAGS) $< > $@
+clean: 
+	find ./ -name "*.o" -exec rm {} \;
+	find ./ -name "*.d" -exec rm {} \;
+	@echo "--- CLEANED DIRS ---"
