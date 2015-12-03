@@ -120,7 +120,8 @@ void initialize_paging(uint32_t memsize)
 {
 	nframes = memsize / 4;
 	frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(nframes));
-	
+	uintptr_t pg;
+
 	assert(frames != NULL);
 
 	memset(frames, 0, INDEX_FROM_BIT(nframes));
@@ -128,8 +129,8 @@ void initialize_paging(uint32_t memsize)
 	uintptr_t physical;
 	kernel_directory = (page_directory_t *)kmalloc_ap(sizeof(page_directory_t), &physical);
 	memset(kernel_directory, 0, sizeof(page_directory_t));
+	current_directory = kernel_directory;
 
-	register_isr_handler(13, general_protection_fault);
 #if 1
 	get_page(0,1,kernel_directory)->present = 0;
 	set_frame(0);
@@ -141,8 +142,6 @@ void initialize_paging(uint32_t memsize)
 	{
 		direct_frame( get_page(i, 1, kernel_directory), 1, 0, i);
 	}
-	
-	register_isr_handler(14, page_fault);	
 	
 	kernel_directory->physical_addr = (uintptr_t)kernel_directory->tables_physical;
 
@@ -163,6 +162,14 @@ void initialize_paging(uint32_t memsize)
 		get_page(i, 1, kernel_directory);
 	}
 
+	for(uintptr_t i = heap_start; i < heap_start + KERNEL_HEAP_INIT; i += 0x1000)
+	{
+		alloc_frame(get_page(i, 1, kernel_directory), 0, 0);
+	}
+	
+	register_isr_handler(13, general_protection_fault);
+	register_isr_handler(14, page_fault);	
+
 	switch_page_directory(kernel_directory);
 
 	kernel_heap = create_heap(heap_start, heap_start + KERNEL_HEAP_INIT, KERNEL_HEAP_END, 0, 0);
@@ -170,7 +177,6 @@ void initialize_paging(uint32_t memsize)
 
 void switch_page_directory(page_directory_t *dir)
 {
-	current_directory = dir;
 	write_cr3((uint32_t)&dir->tables_physical);
 	write_cr4(read_cr4() | 0x00000010); // Set PSE;
 	write_cr0(read_cr0() | 0x80000000); // Set PG;
@@ -182,7 +188,7 @@ page_entry_t *get_page(uint32_t address, int make, page_directory_t *dir)
 	uint32_t table_idx = address / 1024;
 	if(dir->tables[table_idx])
 	{
-		return &dir->tables[table_idx]->pages[address&0x03ff];
+		return &dir->tables[table_idx]->pages[address % 1024];
 	}
 	else if(make)
 	{
@@ -190,7 +196,7 @@ page_entry_t *get_page(uint32_t address, int make, page_directory_t *dir)
 		dir->tables[table_idx] = (page_table_t*)kmalloc_ap(sizeof(page_table_t), (uintptr_t*)(&tmp));
 		memset(dir->tables[table_idx], 0, sizeof(page_table_t));
 		dir->tables_physical[table_idx] = tmp | 0x7;
-		return &dir->tables[table_idx]->pages[address&0x03ff];
+		return &dir->tables[table_idx]->pages[address % 1024];
 	}
 	else
 	{

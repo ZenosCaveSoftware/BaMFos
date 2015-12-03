@@ -23,12 +23,11 @@ static uintptr_t coalesce(heap_header_t *head_ptr);
 
 heap_t *create_heap(uintptr_t start, uintptr_t end, uintptr_t max, uint8_t s, uint8_t ro)
 {
-
 	heap_t *heap = (heap_t *)kmalloc(sizeof(heap_t));
 	assert(!start&0xFFF);
 	assert(!end&0xFFF);
-
-	heap->head = (heap_header_t *)(start = (start + sizeof(heap_t) + 0xFFF) & ~(0xFFF));
+	
+	heap->head = (heap_header_t *)start;
 	
 	heap->head->size = end - start;
 	heap->head->is_free = 1;
@@ -44,24 +43,52 @@ heap_t *create_heap(uintptr_t start, uintptr_t end, uintptr_t max, uint8_t s, ui
 
 void *khalloc(uint32_t size, uint8_t align, heap_t *heap)
 {
-	/*
+	if(__builtin_expect(size == 0, 0))
+	{
+		return NULL;
+	}
+
 	heap_header_t * head_ptr = heap->head;
-	while(head_ptr &&
-		head_ptr->size < size + sizeof(heap_header_t) + sizeof(heap_footer_t) 
-		&& head_ptr->next)
-		head_ptr = head_ptr->next;
+	heap_header_t * curr_ptr = head_ptr;
+
+	while(head_ptr)
+	{
+		if(head_ptr->size < curr_ptr->size)
+		{
+			curr_ptr = head_ptr;
+		}
+		if(!head_ptr->next)
+			break;
+		head_ptr = (heap_header_t *)head_ptr->next;
+	}
+
+	head_ptr = curr_ptr;
 
 	if(!(head_ptr && head_ptr->is_free &&
 		head_ptr->size >= size + sizeof(heap_header_t) + sizeof(heap_footer_t)))
 	{
 				//Something is wrong...
 	}
-	*/
+	heap_footer_t * new_foot = (heap_footer_t *)(head_ptr + size - sizeof(heap_footer_t));
+	heap_footer_t * foot_ptr = (heap_footer_t *)(head_ptr + head_ptr->size - sizeof(heap_footer_t));
+	heap_header_t * new_head = (heap_header_t *)(new_foot + sizeof(heap_footer_t)); 
+	
+	new_foot->prev = foot_ptr->prev;
+	new_foot->size=size;
+	
+	new_head->size = head_ptr->size - size - sizeof(heap_header_t) - sizeof(heap_footer_t);
+	new_head->is_free = 1;
+	new_head->next = head_ptr->next;
+
+	head_ptr->size = size;
+	head_ptr->is_free = 0;
+	head_ptr->next = (uintptr_t)new_head;
 }
 
 void khfree(void *p, heap_t *heap)
 {
-	if (__builtin_expect(p == NULL, 0)) {
+	if (__builtin_expect(p == NULL, 0)) 
+	{
 		return;
 	}
 
@@ -119,7 +146,7 @@ uintptr_t coalesce(heap_header_t *head_ptr)
 	}
 	if ((prev_ptr = (heap_header_t *) prev_contig_block(
 			(uintptr_t)((uint32_t) head_ptr
-			 + sizeof(heap_header_t)))) != NULL && next_ptr->is_free)
+			 + sizeof(heap_header_t)))) != NULL && prev_ptr->is_free)
 	{
 		(foot_ptr = (heap_footer_t *)(head_ptr->size 
 			+ (uint32_t) head_ptr 

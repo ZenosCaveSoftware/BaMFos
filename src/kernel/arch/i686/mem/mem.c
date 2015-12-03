@@ -25,8 +25,7 @@ uintptr_t _kmalloc(size_t size, uint8_t align, uintptr_t *phys)
    
 	if(align && (placement_address & 0xFFF))
 	{
-		placement_address &= 0xFFFFF000;
-		placement_address += 0x1000;
+		placement_address = placement_address + 0x1000 & ~0xFFF;
 	}	
 	if(phys)
 	{

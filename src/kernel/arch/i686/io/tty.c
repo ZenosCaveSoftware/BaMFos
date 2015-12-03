@@ -27,7 +27,6 @@ void initialize_terminal()
 			terminal_buffer[index] = make_vgaentry('\0', terminal_color);
 		}
 	}
-	terminal_writestring("[TTY]   ... DONE\n");
 }
 
 void terminal_setcolor(uint8_t color)
@@ -112,5 +111,5 @@ void terminal_scroll()
 		terminal_buffer[i] = terminal_buffer[i + VGA_WIDTH];
 	for(; i < VGA_WIDTH * VGA_HEIGHT; i++)
 		terminal_buffer[i] = make_vgaentry(' ',  make_color(COLOR_LIGHT_GREY, COLOR_BLACK));
-	--terminal_column;
+	--terminal_row;
 }
