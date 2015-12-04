@@ -2,7 +2,7 @@
 #define _KERNEL_ALLOC_H 1
 
 #define KERNEL_HEAP_START 	0xC000000
-#define KERNEL_HEAP_INIT	0x10000
+#define KERNEL_HEAP_INIT	0x100000
 #define KERNEL_HEAP_END		0xCFFF000
 #define HEAP_INDEX			0x20000
 #define HEAP_MAGIC			0xDEADFADE
@@ -22,16 +22,6 @@ typedef struct heap_footer_struct
 	uint32_t size;
 	uintptr_t prev;
 } __attribute__((packed)) heap_footer_t;
-
-
-//unused {{{
-typedef struct heap_bin_struct
-{
-	uintptr_t next;
-	uint32_t size_index;
-	type_t *val;
-} __attribute__((packed)) heap_bin_t;
-// }}}
 
 typedef struct heap_struct
 {

@@ -28,6 +28,27 @@ static void printi(const int data) {
 	print(p, strlen(p));
 }
 
+static void printx(const int data) {
+	int tmp = data;
+	int tmp2 = 0;
+	int val = 0;
+	char str[17];
+	char *p = &str[sizeof(str) - 1];
+	*p = '\0';
+	val = tmp / 16;
+	tmp2 = tmp - val * 16;
+	*--p = (tmp2 >= 0xa) ? (char) ('a' + tmp2 - 0xa) : (char) ('0' + tmp2);
+	tmp = val;
+	while(tmp != 0)
+	{
+		val = tmp / 16;
+		tmp2 = tmp - val * 16;
+		*--p = (tmp2 >= 0xa) ? (char) ('a' + tmp2 - 0xa) : (char) ('0' + tmp2);
+		tmp = val;
+	}
+	print(p, strlen(p));
+}
+
 int printf(const char* restrict format, ...)
 {
 	va_list parameters;
@@ -80,8 +101,13 @@ int printf(const char* restrict format, ...)
 		{
 			format++;
 			int d = (int) va_arg(parameters, int);
-			char *p;
 			printi(d);
+		}
+		else if ( *format == 'x' )
+		{
+			format++;
+			int d = (int) va_arg(parameters, int);
+			printx(d);
 		}
 		else
 		{

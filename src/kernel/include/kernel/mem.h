@@ -8,6 +8,8 @@ uintptr_t kmalloc_a(size_t size);
 uintptr_t kmalloc_p(size_t size, uintptr_t *phys);
 uintptr_t kmalloc_ap(size_t size, uintptr_t *phys);
 
+void kfree(void * p);
+
 uintptr_t map_to_physical(uintptr_t);
 
 #endif

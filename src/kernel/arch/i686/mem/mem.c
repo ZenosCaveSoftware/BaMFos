@@ -4,6 +4,7 @@
 #include <kernel/mem.h>
 #include <kernel/paging.h>
 #include <kernel/alloc.h>
+#include <kernel/tty.h>
 
 extern void *end;
 extern page_directory_t *kernel_directory;
@@ -15,6 +16,7 @@ uintptr_t _kmalloc(size_t size, uint8_t align, uintptr_t *phys)
 {
 	if (kernel_heap)
     {
+    	terminal_writestring("Heap found...\n");
         void *addr = khalloc(size, (uint8_t)align, kernel_heap);
         if (phys)
         {
@@ -40,6 +42,7 @@ uintptr_t kmalloc(size_t size) { return _kmalloc(size, 0, NULL); }
 uintptr_t kmalloc_a(size_t size) { return _kmalloc(size, 1, NULL); }
 uintptr_t kmalloc_p(size_t size, uintptr_t *phys) { return _kmalloc(size, 0, phys); }
 uintptr_t kmalloc_ap(size_t size, uintptr_t *phys) { return _kmalloc(size, 1, phys); }
+void kfree(void * p) { if(kernel_heap) khfree(p, kernel_heap); }
 
 uintptr_t map_to_physical(uintptr_t virt) 
 {

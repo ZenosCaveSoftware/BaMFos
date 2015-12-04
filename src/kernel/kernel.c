@@ -10,6 +10,8 @@
 #include <kernel/tss.h>
 #include <kernel/multiboot.h>
 #include <kernel/paging.h>
+#include <kernel/mem.h>
+#include <kernel/alloc.h>
 
 void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 {
@@ -23,20 +25,29 @@ void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 	__asm__ __volatile__("sti");
 	terminal_writestring("DONE\n[PAGE]  ... ");
 	initialize_paging(mboot->mem_upper + mboot->mem_lower);
-	terminal_writestring("DONE\n[HEAP]  ... ");
-	//initialize_heap();
 	terminal_writestring("DONE\n");
+
+	printf("\nrunning memory tests...\nA:");
+	uint32_t a = kmalloc(4);
+	printf("B:\n");
+	uint32_t b = kmalloc(4);
+	printf("a: %x\nb: %x\n", a, b);
+	kfree((void *)a);
+	kfree((void *)b);
+	uint32_t c = kmalloc(8);
+	printf("c: %x\n", c);
+	kfree((void *)c);
 }
 
 void kernel_main()
 {
-printf("\
+	printf("\
  ______      ___  _________    _____ _____      \n\
  | ___ \\     |  \\/  ||  ___|  /  _  /  ___|   \n\
  | |_/ / __ _| .  . || |_ ____| | | \\ `--.     \n\
  | ___ \\/ _` | |\\/| ||  _|____| | | |`--. \\  \n\
  | |_/ / (_| | |  | || |      \\ \\_/ /\\__/ /  \n\
  \\____/ \\__,_\\_|  |_/\\_|       \\___/\\____/\n\
- Barely		  Made	  Functional: An OS.\n\
- ");
+ Barely		  Made	  Functional: An OS.\n");
+	
 }

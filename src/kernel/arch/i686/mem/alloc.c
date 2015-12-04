@@ -1,6 +1,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
+#include <stdio.h>
+#include <kernel/panic.h>
 #include <kernel/mem.h>
 #include <kernel/paging.h>
 #include <kernel/alloc.h>
@@ -12,14 +14,14 @@ extern page_directory_t *kernel_directory;
 uintptr_t placement_address = (uintptr_t)&end;
 heap_t *kernel_heap = (heap_t*) NULL;
 
-static void free_block(heap_t *heap,uintptr_t u_data);
-static void alloc_block(heap_t *heap, uint32_t size);
+void free_block(heap_t *heap,uintptr_t u_data);
+void alloc_block(heap_t *heap, uint32_t size);
 
-static uintptr_t next_free_block(uintptr_t u_data);
-static uintptr_t next_contig_block(uintptr_t u_data);
-static uintptr_t prev_free_block(uintptr_t u_data);
-static uintptr_t prev_contig_block(uintptr_t u_data);
-static uintptr_t coalesce(heap_header_t *head_ptr);
+uintptr_t next_free_block(uintptr_t u_data);
+uintptr_t next_contig_block(uintptr_t u_data);
+uintptr_t prev_free_block(uintptr_t u_data);
+uintptr_t prev_contig_block(uintptr_t u_data);
+uintptr_t coalesce(heap_header_t *head_ptr);
 
 heap_t *create_heap(uintptr_t start, uintptr_t end, uintptr_t max, uint8_t s, uint8_t ro)
 {
@@ -67,11 +69,14 @@ void *khalloc(uint32_t size, uint8_t align, heap_t *heap)
 	if(!(head_ptr && head_ptr->is_free &&
 		head_ptr->size >= size + sizeof(heap_header_t) + sizeof(heap_footer_t)))
 	{
-				//Something is wrong...
+		PANIC("Out of heap!!!");	//Something is wrong...
 	}
-	heap_footer_t * new_foot = (heap_footer_t *)(head_ptr + size - sizeof(heap_footer_t));
+
+	heap_footer_t * new_foot = (heap_footer_t *)(head_ptr + size + sizeof(heap_header_t));
 	heap_footer_t * foot_ptr = (heap_footer_t *)(head_ptr + head_ptr->size - sizeof(heap_footer_t));
 	heap_header_t * new_head = (heap_header_t *)(new_foot + sizeof(heap_footer_t)); 
+	
+	printf("new_foot: 0x%x, foot_ptr: 0x%x\nnew_head: 0x%x, head_ptr: 0x%x\n", new_foot, foot_ptr, new_head, head_ptr);
 	
 	new_foot->prev = foot_ptr->prev;
 	new_foot->size=size;
@@ -83,6 +88,9 @@ void *khalloc(uint32_t size, uint8_t align, heap_t *heap)
 	head_ptr->size = size;
 	head_ptr->is_free = 0;
 	head_ptr->next = (uintptr_t)new_head;
+
+	
+	return head_ptr;
 }
 
 void khfree(void *p, heap_t *heap)
@@ -91,10 +99,12 @@ void khfree(void *p, heap_t *heap)
 	{
 		return;
 	}
-
-	heap_header_t *head_ptr = (heap_header_t*)((uint32_t) p - sizeof(heap_header_t));
-	head_ptr->is_free = 1;
-	coalesce(head_ptr);
+	heap_header_t *head_ptr	= NULL;
+	if(!(head_ptr = (heap_header_t*)((uint32_t) p - sizeof(heap_header_t)))->is_free)
+	{
+		head_ptr->is_free = 1;
+		coalesce(head_ptr);
+	}
 }
 
 uintptr_t next_free_block(uintptr_t u_data)
