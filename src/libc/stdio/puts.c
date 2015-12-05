@@ -2,5 +2,6 @@
 
 int puts(const char* string)
 {
-	return printf("%s\n", string);
+	if(string) return printf("%s\n", string);
+	return printf("\n");
 }

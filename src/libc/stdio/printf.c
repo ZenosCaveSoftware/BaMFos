@@ -25,6 +25,7 @@ static void printi(const int data) {
 		*--p = ('0' + (char) (tmp - val * 10));
 		tmp = val;
 	}
+	if(!strlen(p)) *--p = '0';
 	print(p, strlen(p));
 }
 
@@ -46,6 +47,9 @@ static void printx(const int data) {
 		*--p = (tmp2 >= 0xa) ? (char) ('a' + tmp2 - 0xa) : (char) ('0' + tmp2);
 		tmp = val;
 	}
+
+	if(!strlen(p)) *--p = '0';
+
 	print(p, strlen(p));
 }
 

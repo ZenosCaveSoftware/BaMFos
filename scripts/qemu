@@ -8,4 +8,5 @@ fi
 if [[ $# -eq 0 ]]; then
 	. ./iso
 fi
-qemu-system-$(./target-triplet-to-arch $(./default-host)) -cdrom ../BaMF.iso -m 1024
+let mem=($(awk '/^MemTotal:/{print $2}' /proc/meminfo)/4096+1023)/1024*1024
+qemu-system-$(./target-triplet-to-arch $(./default-host)) -cdrom ../BaMF.iso -m $mem

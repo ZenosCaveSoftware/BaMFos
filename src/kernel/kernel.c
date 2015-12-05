@@ -27,16 +27,15 @@ void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 	initialize_paging(mboot->mem_upper + mboot->mem_lower);
 	terminal_writestring("DONE\n");
 
-	printf("\nrunning memory tests...\nA:");
 	uint32_t a = kmalloc(4);
-	printf("B:\n");
 	uint32_t b = kmalloc(4);
 	printf("a: %x\nb: %x\n", a, b);
 	kfree((void *)a);
+	printf("bleh\n");
 	kfree((void *)b);
-	uint32_t c = kmalloc(8);
-	printf("c: %x\n", c);
-	kfree((void *)c);
+	//uint32_t c = kmalloc(8);
+	//printf("c: %x\n", c);
+	//kfree((void *)c);
 }
 
 void kernel_main()

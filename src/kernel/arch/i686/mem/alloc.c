@@ -17,6 +17,9 @@ heap_t *kernel_heap = (heap_t*) NULL;
 void free_block(heap_t *heap,uintptr_t u_data);
 void alloc_block(heap_t *heap, uint32_t size);
 
+void print_header(char *name, heap_header_t *head);
+void print_footer(char *name, heap_footer_t *foot);
+
 uintptr_t next_free_block(uintptr_t u_data);
 uintptr_t next_contig_block(uintptr_t u_data);
 uintptr_t prev_free_block(uintptr_t u_data);
@@ -30,8 +33,7 @@ heap_t *create_heap(uintptr_t start, uintptr_t end, uintptr_t max, uint8_t s, ui
 	assert(!end&0xFFF);
 	
 	heap->head = (heap_header_t *)start;
-	
-	heap->head->size = end - start;
+	heap->head->size = (uint32_t) end - (uint32_t) start;
 	heap->head->is_free = 1;
 	heap->head->next = NULL;
 	heap->start = start;
@@ -39,7 +41,9 @@ heap_t *create_heap(uintptr_t start, uintptr_t end, uintptr_t max, uint8_t s, ui
 	heap->max = max;
 	heap->supervisor = s;
 	heap->readonly = ro;
-
+	heap_footer_t *foot_ptr = NULL;
+	(foot_ptr = ((heap_footer_t *)((uint32_t)end - sizeof(heap_footer_t))))->size = heap->head->size;
+	foot_ptr->prev = NULL;
 	return heap;
 }
 
@@ -55,7 +59,7 @@ void *khalloc(uint32_t size, uint8_t align, heap_t *heap)
 
 	while(head_ptr)
 	{
-		if(head_ptr->size < curr_ptr->size)
+		if(head_ptr->size < size + sizeof(heap_header_t) + sizeof(heap_footer_t))
 		{
 			curr_ptr = head_ptr;
 		}
@@ -72,25 +76,22 @@ void *khalloc(uint32_t size, uint8_t align, heap_t *heap)
 		PANIC("Out of heap!!!");	//Something is wrong...
 	}
 
-	heap_footer_t * new_foot = (heap_footer_t *)(head_ptr + size + sizeof(heap_header_t));
-	heap_footer_t * foot_ptr = (heap_footer_t *)(head_ptr + head_ptr->size - sizeof(heap_footer_t));
-	heap_header_t * new_head = (heap_header_t *)(new_foot + sizeof(heap_footer_t)); 
-	
-	printf("new_foot: 0x%x, foot_ptr: 0x%x\nnew_head: 0x%x, head_ptr: 0x%x\n", new_foot, foot_ptr, new_head, head_ptr);
+	heap_footer_t * new_foot = (heap_footer_t *)((uint32_t)head_ptr + head_ptr->size - size - sizeof(heap_header_t) - (2 * sizeof(heap_footer_t)));
+	heap_footer_t * foot_ptr = (heap_footer_t *)((uint32_t)head_ptr + head_ptr->size - sizeof(heap_footer_t));
+	heap_header_t * new_head = (heap_header_t *)((uint32_t)new_foot + sizeof(heap_footer_t)); 
+
+	head_ptr->size = head_ptr->size - size - sizeof(heap_header_t) - sizeof(heap_footer_t);
+
+	new_head->size = size;
+	new_head->is_free = 0;
+	new_head->next = NULL;
 	
 	new_foot->prev = foot_ptr->prev;
-	new_foot->size=size;
-	
-	new_head->size = head_ptr->size - size - sizeof(heap_header_t) - sizeof(heap_footer_t);
-	new_head->is_free = 1;
-	new_head->next = head_ptr->next;
+	new_foot->size=head_ptr->size;
 
-	head_ptr->size = size;
-	head_ptr->is_free = 0;
-	head_ptr->next = (uintptr_t)new_head;
+	foot_ptr->prev = NULL;
 
-	
-	return head_ptr;
+	return (void *)((uint32_t)new_head + sizeof(heap_header_t));
 }
 
 void khfree(void *p, heap_t *heap)
@@ -99,8 +100,8 @@ void khfree(void *p, heap_t *heap)
 	{
 		return;
 	}
-	heap_header_t *head_ptr	= NULL;
-	if(!(head_ptr = (heap_header_t*)((uint32_t) p - sizeof(heap_header_t)))->is_free)
+	heap_header_t *head_ptr	= (heap_header_t *)((uint32_t) p - sizeof(heap_header_t));
+	if(!head_ptr->is_free)
 	{
 		head_ptr->is_free = 1;
 		coalesce(head_ptr);
@@ -151,6 +152,7 @@ uintptr_t coalesce(heap_header_t *head_ptr)
 		= ((heap_footer_t *)(head_ptr->size 
 			+ (uint32_t) head_ptr 
 			- sizeof(heap_footer_t)))->prev;
+		head_ptr->next = next_ptr->next;
 		head_ptr->size += next_ptr->size;
 		foot_ptr->size = head_ptr->size; 
 	}
@@ -164,9 +166,22 @@ uintptr_t coalesce(heap_header_t *head_ptr)
 		= ((heap_footer_t *)(prev_ptr->size
 			+ (uint32_t) prev_ptr
 			- sizeof(heap_footer_t)))->prev;
+		prev_ptr->next = head_ptr->next;
 		prev_ptr->size += head_ptr->size;
 		foot_ptr->size = prev_ptr->size;
 		
 	}
 	return (uintptr_t) ((prev_ptr && prev_ptr->is_free) ? prev_ptr : head_ptr);
+}
+
+void print_header(char *name, heap_header_t *head)
+{
+	printf("%s:\t\t\t0x%x\n%s->size:\t%x\n%s->is_free:\t%d\n%s->next:\t%x\n", 
+		name, head, name, head->size, name, head->is_free, name, head->next);
+}
+
+void print_footer(char *name, heap_footer_t *foot)
+{
+	printf("%s:\t\t\t0x%x\n%s->size:\t%d\n%s->prev:\t%x\n", 
+		name, foot, name, foot->size, name, foot->prev);
 }

@@ -16,8 +16,7 @@ uintptr_t _kmalloc(size_t size, uint8_t align, uintptr_t *phys)
 {
 	if (kernel_heap)
     {
-    	terminal_writestring("Heap found...\n");
-        void *addr = khalloc(size, (uint8_t)align, kernel_heap);
+    	void *addr = khalloc(size, (uint8_t)align, kernel_heap);
         if (phys)
         {
             *phys = map_to_physical((uintptr_t)addr);
