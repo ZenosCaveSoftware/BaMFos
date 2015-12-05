@@ -17,9 +17,6 @@ heap_t *kernel_heap = (heap_t*) NULL;
 void free_block(heap_t *heap,uintptr_t u_data);
 void alloc_block(heap_t *heap, uint32_t size);
 
-void print_header(char *name, heap_header_t *head);
-void print_footer(char *name, heap_footer_t *foot);
-
 uintptr_t next_free_block(uintptr_t u_data);
 uintptr_t next_contig_block(uintptr_t u_data);
 uintptr_t prev_free_block(uintptr_t u_data);
@@ -172,16 +169,4 @@ uintptr_t coalesce(heap_header_t *head_ptr)
 		
 	}
 	return (uintptr_t) ((prev_ptr && prev_ptr->is_free) ? prev_ptr : head_ptr);
-}
-
-void print_header(char *name, heap_header_t *head)
-{
-	printf("%s:\t\t\t0x%x\n%s->size:\t%x\n%s->is_free:\t%d\n%s->next:\t%x\n", 
-		name, head, name, head->size, name, head->is_free, name, head->next);
-}
-
-void print_footer(char *name, heap_footer_t *foot)
-{
-	printf("%s:\t\t\t0x%x\n%s->size:\t%d\n%s->prev:\t%x\n", 
-		name, foot, name, foot->size, name, foot->prev);
 }
