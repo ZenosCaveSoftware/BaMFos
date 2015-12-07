@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
 
@@ -10,9 +11,9 @@ static void print(const char* data, size_t data_length)
 		putchar((int) ((const unsigned char*) data)[i]);
 }
 
-static void printi(const int data) {
-	int tmp = data;
-	int val;
+static void printi(const int32_t data) {
+	int32_t tmp = data;
+	int32_t val;
 	char str[33];
 	char *p = &str[sizeof(str) - 1];
 	*p = '\0';
@@ -29,10 +30,10 @@ static void printi(const int data) {
 	print(p, strlen(p));
 }
 
-static void printx(const int data) {
-	int tmp = data;
-	int tmp2 = 0;
-	int val = 0;
+static void printx(const uint32_t data) {
+	uint32_t tmp = data;
+	uint32_t tmp2 = 0;
+	uint32_t val = 0;
 	char str[17];
 	char *p = &str[sizeof(str) - 1];
 	*p = '\0';

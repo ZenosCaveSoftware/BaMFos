@@ -71,6 +71,12 @@ void terminal_write(const char* data, size_t size)
 				terminal_putchar(' ');
 			
 		}
+		else if(data[i] == '\r')
+		{
+			
+			while(terminal_column-- >= 0)
+				terminal_putentryat(' ', make_color(COLOR_LIGHT_GREY, COLOR_BLACK),terminal_column, terminal_row);
+		}
 		else
 		{
 			terminal_putchar(data[i]);
@@ -84,8 +90,8 @@ void terminal_writestring(const char* data)
 
 void terminal_writehex(const uint32_t data)
 {
-	int tmp = data;
-	int tmp2 = 0;
+	uint32_t tmp = data;
+	uint32_t tmp2 = 0;
 	int val = 0;
 	char str[17];
 	char *p = &str[sizeof(str) - 1];

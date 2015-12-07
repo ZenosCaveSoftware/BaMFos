@@ -27,15 +27,6 @@ void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 	initialize_paging(mboot->mem_upper + mboot->mem_lower);
 	terminal_writestring("DONE\n");
 
-	uint32_t a = kmalloc(4);
-	uint32_t b = kmalloc(4);
-	printf("a: %x\nb: %x\n", a, b);
-	kfree((void *)a);
-	printf("bleh\n");
-	kfree((void *)b);
-	//uint32_t c = kmalloc(8);
-	//printf("c: %x\n", c);
-	//kfree((void *)c);
 }
 
 void kernel_main()
@@ -49,4 +40,12 @@ void kernel_main()
  \\____/ \\__,_\\_|  |_/\\_|       \\___/\\____/\n\
  Barely		  Made	  Functional: An OS.\n");
 	
+	uint32_t a = kmalloc(4);
+	uint32_t b = kmalloc(4);
+	printf("a: %x\nb: %x\n", a, b);
+	kfree((void *)a);
+	kfree((void *)b);
+	uint32_t c = kmalloc(4);
+	printf("c: %x\n", c);
+	kfree((void *)c);
 }
