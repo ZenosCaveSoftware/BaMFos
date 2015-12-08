@@ -1,0 +1,3 @@
+[submodule "codingstyles"]
+	path = codingstyles
+	url = git@neetco.de:zenoscave/codingstyles.git

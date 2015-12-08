@@ -104,9 +104,9 @@ void khfree(void *p, heap_t *heap)
 	}
 
 	heap_header_t *head_ptr	= (heap_header_t *)((uint32_t) p - sizeof(heap_header_t));
-	heap_header_t * next_ptr;
-	heap_header_t * prev_ptr;
-	heap_footer_t * foot_ptr;
+	heap_header_t *next_ptr;
+	heap_header_t *prev_ptr;
+	heap_footer_t *foot_ptr;
 
 	if(!head_ptr->is_free)
 	{
@@ -169,7 +169,6 @@ uintptr_t prev_contig_block(uintptr_t u_data)
 	heap_footer_t *prev_foot_ptr = (heap_footer_t *)((uint32_t) head_ptr - sizeof(heap_header_t) - sizeof(heap_footer_t));
 	if((uint32_t) prev_foot_ptr < kernel_heap->start || (uint32_t) head_ptr - prev_foot_ptr->size < kernel_heap->start) return NULL;
 	return (uintptr_t)((uint32_t) head_ptr - prev_foot_ptr->size);
-
 }
 
 

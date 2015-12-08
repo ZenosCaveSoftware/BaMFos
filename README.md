@@ -1,8 +1,10 @@
 BaMF. An OS.
 ==============================
-Started as a Meaty Skeleton Kernel. found [here](https://gitlab.com/sortie/meaty-skeleton)
+Started as a Meaty Skeleton Kernel (found 
+[here](https://gitlab.com/sortie/meaty-skeleton)).
 
-I hope to grow this OS into a simple development environment aimed at software development solely.
+I hope to grow this OS into a simple development environment. 
+This is aimed at software development solely.
 
 
 Setup
@@ -30,3 +32,8 @@ Provided scripts:
 - ./iso.sh builds the main iso for distrobution and installation.
 - ./qemu.sh runs qemu for the BaMF.iso. Invokes ./iso.sh.
 - ./target-triple-to-arch.sh is used by ./qemu.sh to set host triplet if needed.
+
+Contributions:
+-----------------------------
+Please refer to [CONTRIB](CONTRIB.md)
+for a list of contributors and contribution guides.
