@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <kernel/vga.h>
 #include <kernel/tty.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
@@ -16,16 +17,16 @@
 void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 {
 	initialize_terminal();
-	terminal_writestring("[TTY]   ... DONE\n[GDT]   ... ");
+	terminal_writestring("[TTY]   ...  \x1b[32mDONE\n\x1b[00m[GDT]   ... ");
 	initialize_gdt();
-	terminal_writestring("DONE\n[IDT]   ... ");
+	terminal_writestring("\x1b[32mDONE\n\x1b[00m[IDT]   ... ");
 	initialize_idt();
-	terminal_writestring("DONE\n[IRQ]   ... ");
+	terminal_writestring("\x1b[32mDONE\n\x1b[00m[IRQ]   ... ");
 	initialize_irq();
 	__asm__ __volatile__("sti");
-	terminal_writestring("DONE\n[PAGE]  ... ");
+	terminal_writestring("\x1b[32mDONE\n\x1b[00m[PAGE]  ... ");
 	initialize_paging(mboot->mem_upper + mboot->mem_lower);
-	terminal_writestring("DONE\n");
+	terminal_writestring("\x1b[32mDONE\n\x1b[00m");
 
 }
 
@@ -39,13 +40,5 @@ void kernel_main()
  | |_/ / (_| | |  | || |      \\ \\_/ /\\__/ /  \n\
  \\____/ \\__,_\\_|  |_/\\_|       \\___/\\____/\n\
  Barely		  Made	  Functional: An OS.\n");
-	
-	uint32_t a = kmalloc(4);
-	uint32_t b = kmalloc(4);
-	printf("a: %x\nb: %x\n", a, b);
-	kfree((void *)a);
-	kfree((void *)b);
-	uint32_t c = kmalloc(4);
-	printf("c: %x\n", c);
-	kfree((void *)c);
+
 }
