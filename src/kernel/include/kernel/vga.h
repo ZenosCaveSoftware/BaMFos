@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#define VGA_ESC
-
 enum vga_color
 {
 	COLOR_BLACK = 0,

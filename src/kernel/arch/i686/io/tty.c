@@ -345,7 +345,7 @@ uint8_t terminal_escape_sequence(const char *es)
     }
     else if(*es2 == '1' && es2[1] == '0' && es2[3] == 'm')
     {
-        if(es2[2] - '0' > 0x8)
+        if(es2[2] - '0' < 0x8)
         {
             terminal_background(es2[2] - '0' + 0x8);
         }

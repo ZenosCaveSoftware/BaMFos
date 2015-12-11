@@ -17,7 +17,7 @@
 void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 {
 	initialize_terminal();
-	terminal_writestring("[TTY]   ...  \x1b[32mDONE\n\x1b[00m[GDT]   ... ");
+	terminal_writestring("[TTY]   ...  \x1b[32mDONE\n\x1b[0m[GDT]   ... ");
 	initialize_gdt();
 	terminal_writestring("\x1b[32mDONE\n\x1b[00m[IDT]   ... ");
 	initialize_idt();

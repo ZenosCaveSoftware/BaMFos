@@ -94,7 +94,7 @@ int printf(const char* restrict format, ...)
 		{
 			format++;
 			char c = (char) va_arg(parameters, int /* char promotes to int */);
-			print(&c, sizeof(c));
+			print(&c, 1);
 		}
 		else if ( *format == 's' )
 		{
