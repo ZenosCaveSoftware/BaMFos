@@ -18,7 +18,7 @@ then you will find the Coding Style Guides in ``./codingstyles``
 If you only cloned the base repository and not the submodule(s), just run:
 
     
-    cd codingstyles
+    cd submodules/codingstyles
     git submodule init
     git submodule update
 
