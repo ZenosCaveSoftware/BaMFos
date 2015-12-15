@@ -3,16 +3,16 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <kernel/vga.h>
-#include <kernel/tty.h>
-#include <kernel/gdt.h>
-#include <kernel/idt.h>
-#include <kernel/isr.h>
-#include <kernel/tss.h>
-#include <kernel/multiboot.h>
-#include <kernel/paging.h>
-#include <kernel/mem.h>
-#include <kernel/alloc.h>
+#include <io/vga.h>
+#include <io/tty.h>
+#include <cpu/gdt.h>
+#include <cpu/idt.h>
+#include <cpu/isr.h>
+#include <cpu/tss.h>
+#include <boot/multiboot.h>
+#include <mem/paging.h>
+#include <mem/mem.h>
+#include <mem/alloc.h>
 
 void kernel_early(multiboot_t *mboot, uint32_t magic, uintptr_t esp)
 {

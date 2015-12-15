@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #if defined(__is_bamf_kernel)
-#include <kernel/tty.h>
+#include <io/tty.h>
 #endif
 
 int putchar(int ic)

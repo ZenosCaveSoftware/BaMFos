@@ -1,10 +1,12 @@
 
 MODULES = kernel libc
 
-CFLAGS += $(patsubst %,-I%/include,	$(MODULES)) \
+ARCH ?= i686
+
+CFLAGS += -I../include/kernel/arch/$(ARCH) \
+	-I ../include/libc \
 	-ffreestanding -nostdlib -lgcc -std=c11 -DNDEBUG
 
-ARCH ?= i686
 ARCHDIR := kernel/arch/$(ARCH)
 
 PREFIX?=/usr/local
@@ -71,7 +73,8 @@ install: install-headers install-kernel
 
 install-headers:
 	@mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	@for module in $(MODULES); do cp -RT $$module/include $(DESTDIR)$(INCLUDEDIR); done
+	@cp -RT ../include/kernel/arch/$(ARCH) $(DESTDIR)$(INCLUDEDIR);
+	@cp -RT ../include/libc $(DESTDIR)$(INCLUDEDIR);
 	@echo "--- HEADERS INSTALLED ---"
 
 install-kernel: BaMF.kernel

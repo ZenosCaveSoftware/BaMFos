@@ -1,7 +1,7 @@
 #ifndef _KERNEL_PAGING_H
 #define _KERNEL_PAGING_H 1
 
-#include <kernel/isr.h>
+#include <cpu/isr.h>
 
 typedef struct page_t 
 {

@@ -8,8 +8,6 @@ Contribution Guidelines
 -----------------------------
 Luke Smith
 
-Brad Cantrell
-
 # Coding-Styles
 -----------------------------
 If you ran ``git clone --recursive http://neetco.de/zenoscave/bamfos.git``

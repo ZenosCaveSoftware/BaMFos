@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #set -e
 if [[ $# -ge 1 ]]; then
 	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
