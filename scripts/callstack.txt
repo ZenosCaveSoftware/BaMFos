@@ -1,0 +1,23 @@
+./qemu
+  |
+  \-- ./iso
+  		|
+  		\-- ./build
+  			  |
+  			  \-- ./folders
+  			  		|
+  			  		\-- ./config
+  			  			  |
+  			  			  +-- ./triplet-to-arch
+  			  			  |
+  			  			  +-- ./default-host
+
+./clean
+  |
+  \-- ./config
+
+common comands:
+./qemu
+./qemu --no-staging
+./iso
+./build
