@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 if [[ $# -ge 1 ]]; then
 	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
@@ -6,9 +6,10 @@ if [[ $# -ge 1 ]]; then
 	done
 fi
 if [[ $# -eq 0 ]]; then
+	. ./clean
 	. ./headers
 else
 	. ./config
 fi
 
-DESTDIR="$PWD/../sysroot" $MAKE -j $(($(nproc) + 1)) -C ../src install
+DESTDIR="$PWD/../sysroot" $MAKE -j $(($(nproc) + 1)) -s -C ../src install

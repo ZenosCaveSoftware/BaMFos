@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 ./build --no-staging
 ./iso --no-staging

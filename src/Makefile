@@ -58,15 +58,15 @@ all: BaMF.kernel
 .PHONY: all clean install install-headers install-kernel
 
 BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
-	@$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 | tee ../log/$@.log
+	$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 > ../log/$@.log
 	@echo "--- KERNEL LINKED ---"
 
 %.c.o: %.c
-	@$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
+	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 > ../log/$(shell basename $@ .o).log
 	@echo "--- COMPILED $(shell basename $<) ---"
 	
 %.S.o: %.S
-	@$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
+	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 > ../log/$(shell basename $@ .o).log
 	@echo "--- ASSEMBLED $(shell basename $<) ---"
 
 install: install-headers install-kernel
@@ -83,6 +83,6 @@ install-kernel: BaMF.kernel
 	@echo "--- KERNEL INSTALLED ---"
 
 clean: 
-	@find ./ -name "*.o" -exec rm {} \;
-	@find ./ -name "*.d" -exec rm {} \;
+	find ./ -name "*.o" -exec rm {} \;
+	find ./ -name "*.d" -exec rm {} \;
 	@echo "--- CLEANED DIRS ---"
