@@ -1,6 +1,4 @@
-#!/bin/bash
-if echo "$1" | grep -Eq 'i[[:digit:]]86-'; then
-  [[ "x$1" -eq "xi686-elf" ]] && echo x86_64 || echo i386
-else
-  echo "$1" | grep -Eo '^[[:alnum:]_]*'
-fi
+#!/bin/sh
+echo "$1" | grep -Eq 'i[[:digit:]]86-' \
+	&& echo i686 \
+	|| echo "$1" | grep -Eo '^[[:alnum:]_]*'
