@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 if [[ $# -ge 1 ]]; then
 	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
@@ -7,8 +7,6 @@ if [[ $# -ge 1 ]]; then
 fi
 if [[ $# -eq 0 ]]; then
 	. ./build;
-	. ./shapelogs;
-	find ../log -type f -exec cat {} \;
 fi
 
 [[ -d ../isodir ]] && rm -rf ../isodir 

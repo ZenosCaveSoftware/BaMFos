@@ -1,18 +1,24 @@
-#!/usr/bin/bash
+#!/bin/sh
 export MAKE=${MAKE:-make}
-export HOST=$(./default-host)
+export HOST=${HOST:-$(./default-host)}
 
 export AR=${HOST}-ar
 export AS=${HOST}-as
 export CC=${HOST}-gcc
 
+export ARCH=${ARCH:-$(./target-triplet-to-arch $(./default-arch))}
 export PREFIX=/usr
 export EXEC_PREFIX=$PREFIX
 export BOOTDIR=/boot
 export LIBDIR=$EXEC_PREFIX/lib
 export INCLUDEDIR=$PREFIX/include
 
-export CFLAGS='-O2 -g'
+if [[ "x${HOST}" == "xx86_64-elf" ]]; then
+	export CFLAGS='-ffreestanding -mcmodel=large -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -O2'
+else
+	export CFLAGS='-O2'
+fi
+
 export CPPFLAGS=''
 
 # Configure the cross-compiler to use the desired system root.

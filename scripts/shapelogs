@@ -1,16 +1,19 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-for file in `ls ../log/*.c.log`; do
+sed -i -e 's/^.*\/\(.*\):\([0-9]*\):\(.*\)/LNK -- \1:\2 <- \3/g' ../log/BaMF.kernel.log;
+sed -i -e 's/^.*: error: .*\/\(.*\): \(.*\)/ERR -- \1 <- \2/g' ../log/BaMF.kernel.log;
+sed -i -e '/<-/!d' ../log/BaMF.kernel.log;
 
-	if [[ "x$file" != "xBaMF.kernel.log" ]]; then
-		sed -i -e 's/^.*\/\(.*\) error: \(.*\)/ERR -- \1 <- \2/g' ../log/$file;
-		sed -i -e 's/^.*\/\(.*\) warning: \(.*\)/WRN -- \1 <- \2/g' ../log/$file;
-		sed -i -e '/<-/!d' ../log/$file;
-	else
-		sed -i -e 's/^.*\/\(.*\):\([0-9]*\):\(.*\)/LNK -- \1:\2 <- \3/g' ../log/$file;
-		sed -i -e '/<-/!d' ../log/$file;
-	fi;
+for file in `ls ../log/*.c.log`; do
+	sed -i -e 's/^.*\/\(.*\) error: \(.*\)/ERR -- \1 <- \2/g' ../log/$file;
+	sed -i -e 's/^.*\/\(.*\) warning: \(.*\)/WRN -- \1 <- \2/g' ../log/$file;
+	sed -i -e '/<-/!d' ../log/$file;
+done;
+
+for file in `ls ../log/*.S.log`; do
+	sed -i -e 's/^.*\/\(.*\) Error: \(.*\)/ERR -- \1 <- \2/g' ../log/$file;
+	sed -i -e '/<-/!d' ../log/$file;
 done;
 
 find ../log -empty -type f -delete;
