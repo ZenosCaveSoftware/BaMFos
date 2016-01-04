@@ -10,5 +10,7 @@ if [[ $# -eq 0 ]]; then
 	. ./iso
 fi
 
+system=$(./target-triplet-to-arch $(./default-host))
+[[ "x$system" == "xi686" ]] && system=i386
 let mem=($(awk '/^MemTotal:/{print $2}' /proc/meminfo)/4096+1023)/1024*1024
-qemu-system-i386 -cdrom ../BaMF.iso -m $mem
+qemu-system-$system -cdrom ../BaMF.iso -m $mem

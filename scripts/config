@@ -7,7 +7,7 @@ export HOST=${HOST:-$(./default-host)}
 export AR=${HOST}-ar
 export AS=${HOST}-as
 CC=${HOST}-gcc
-
+LD=${HOST}-ld
 export ARCH=${ARCH:-$(./target-triplet-to-arch ${HOST})}
 export PREFIX=/usr
 export EXEC_PREFIX=$PREFIX
@@ -24,10 +24,13 @@ if [[ "x$ARCH" == "xx86_64" ]]; then
 fi
 
 CC="$CC --sysroot=$PWD/../sysroot"
+LD="$LD --sysroot=$PWD/../sysroot"
 
 # Work around that the -elf gcc targets doesn't have a system include directory
 # because configure received --without-headers rather than --with-sysroot.
 if echo "$HOST" | grep -Eq -- '-elf($|-)'; then
-  export CC="$CC -isystem=$INCLUDEDIR"
+	export CC="$CC -isystem=$INCLUDEDIR"
+	export LD="$LD -isystem=$INCLUDEDIR"
 fi
 export CC
+export LD

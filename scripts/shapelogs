@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+#Kernel shaping
+if [[ -f ../log/BaMF.kernel.log && false ]]; then
+	sed -i -e 's/^.*: error: .*\/\(.*\): \(.*\)/ERR -- \1 <- \2/g' ../log/BaMF.kernel.log;
+	sed -i -e 's/^.*\/\(.*\):\([0-9]*\):\(.*\)/LNK -- \1:\2 <- \3/g' ../log/BaMF.kernel.log;
+	sed -i -e '/<-/!d' ../log/BaMF.kernel.log;
+fi
+
+#C source shaping
+for file in `ls ../log/*.c.log`; do
+	echo "editing $file";
+	sed -i -e 's/^.*\/\(.*\) error: \(.*\)/ERR -- \1 <- \2/g' ../log/$file;
+	sed -i -e 's/^.*\/\(.*\) warning: \(.*\)/WRN -- \1 <- \2/g' ../log/$file;
+	sed -i -e '/<-/!d' ../log/$file;
+done
+
+#Assembly shaping
+for file in `ls ../log/*.S.log`; do
+	echo "editing $file";
+	sed -i -e 's/^.*\/\(.*\) Error: \(.*\)/ERR -- \1 <- \2/g' ../log/$file;
+	sed -i -e '/<-/!d' ../log/$file;
+done
+
+find ../log -empty -type f -delete;

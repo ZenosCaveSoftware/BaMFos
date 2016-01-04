@@ -178,12 +178,12 @@ void initialize_paging(uint32_t memsize)
 
 void switch_page_directory(page_directory_t *dir)
 {
-	write_cr3((uint32_t)&dir->tables_physical);
+	write_cr3((uintptr_t)&dir->tables_physical);
 	write_cr4(read_cr4() | 0x00000010); // Set PSE;
 	write_cr0(read_cr0() | 0x80000000); // Set PG;
 }
 
-page_entry_t *get_page(uint32_t address, int make, page_directory_t *dir)
+page_entry_t *get_page(uint64_t address, int32_t make, page_directory_t *dir)
 {
 	address /= 0x1000;
 	uint32_t table_idx = address / 1024;

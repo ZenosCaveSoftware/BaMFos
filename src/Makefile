@@ -4,8 +4,10 @@ MODULES = kernel libc
 ARCH ?= i686
 
 CFLAGS += -I../include/kernel/arch/$(ARCH) \
-	-I ../include/libc \
-	-ffreestanding -nostdlib -lgcc -std=c11 -DNDEBUG
+	-I ../include/libc -O3 \
+	-ffreestanding -fpic -fno-common \
+	-fpic -nostdlib -lgcc -std=c11 -DNDEBUG \
+
 
 ARCHDIR := kernel/arch/$(ARCH)
 
@@ -22,13 +24,14 @@ LSRC :=
 include $(patsubst %,\
 	%/module.mk,$(MODULES))
 
+include $(ARCHDIR)/flags.mk
 
 KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crti.s, $(KSRC))
 KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crtn.s, $(KSRC))
 
 CRTI_OBJ:=$(ARCHDIR)/boot/crti.S.o
-CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtbegin.o)
-CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=crtend.o)
+CRTBEGIN_OBJ:=../crt/$(ARCH)/crtbegin.o
+CRTEND_OBJ:=../crt/$(ARCH)/crtend.o
 CRTN_OBJ:=$(ARCHDIR)/boot/crtn.S.o
 
 KOBJ :=									\
@@ -45,7 +48,7 @@ LOBJ :=									\
 
 OBJ_LINKER :=	\
 $(CRTI_OBJ) 	\
-$(CRTBEGIN_OBJ) \
+$(CRTBEGIN_OBJ)	\
 $(KOBJ) 		\
 $(LOBJ) 		\
 $(CRTEND_OBJ)	\
@@ -58,15 +61,15 @@ all: BaMF.kernel
 .PHONY: all clean install install-headers install-kernel
 
 BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
-	$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 > ../log/$@.log
+	$(CC) -Wl,--build-id=none -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) -gc-sections $(OBJ_LINKER) $(LIBS) 2>&1 |tee ../log/$@.log
 	@echo "--- KERNEL LINKED ---"
 
 %.c.o: %.c
-	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 > ../log/$(shell basename $@ .o).log
+	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
 	@echo "--- COMPILED $(shell basename $<) ---"
 	
 %.S.o: %.S
-	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 > ../log/$(shell basename $@ .o).log
+	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
 	@echo "--- ASSEMBLED $(shell basename $<) ---"
 
 install: install-headers install-kernel
@@ -79,7 +82,7 @@ install-headers:
 
 install-kernel: BaMF.kernel
 	@mkdir -p $(DESTDIR)$(BOOTDIR)
-	@cp BaMF.kernel $(DESTDIR)$(BOOTDIR)
+	@mv BaMF.kernel $(DESTDIR)$(BOOTDIR)
 	@echo "--- KERNEL INSTALLED ---"
 
 clean: 

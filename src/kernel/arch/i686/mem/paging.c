@@ -183,7 +183,7 @@ void switch_page_directory(page_directory_t *dir)
 	write_cr0(read_cr0() | 0x80000000); // Set PG;
 }
 
-page_entry_t *get_page(uint32_t address, int make, page_directory_t *dir)
+page_entry_t *get_page(uintptr_t address, int32_t make, page_directory_t *dir)
 {
 	address /= 0x1000;
 	uint32_t table_idx = address / 1024;

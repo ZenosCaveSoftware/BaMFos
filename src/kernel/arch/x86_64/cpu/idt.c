@@ -61,7 +61,7 @@ idt_ptr_t 	idt_ptr;
 void initialize_idt()
 {
 	idt_ptr.limit = (sizeof (idt_entry_t) * 256) - 1;
-	idt_ptr.base = (uint32_t)&idt;
+	idt_ptr.base = (uintptr_t)&idt;
 	memset((void *)idt_ptr.base, 0, sizeof (idt_entry_t) * 256);	
 
 	fillidte(0, 8, _isr0, 0xe, 0);
@@ -98,7 +98,7 @@ void initialize_idt()
 	fillidte(31, 8, _isr31, 0xe, 0);
 	fillidte(127, 8, _isr127, 0xe, 0);
 
-	idt_flush((uint32_t)&idt_ptr);
+	idt_flush((uintptr_t)&idt_ptr);
 }
 
 
@@ -125,11 +125,13 @@ void initialize_irq()
 
 static void fillidte(int entry, uint16_t sel, void *offset, uint8_t gate, uint8_t priv)
 {
-	idt[entry].base_low =  (uint16_t)((uint32_t)offset & 0xFFFF);
-	idt[entry].base_high =  (uint16_t)(((uint32_t)offset >> 16) & 0xFFFF);
+	idt[entry].base_low  =  (uint16_t)((uintptr_t)offset & 0xFFFF);
+	idt[entry].base_mid  =  (uint16_t)(((uintptr_t)offset >> 16) & 0xFFFF);
+	idt[entry].base_high =	(uint32_t)(((uintptr_t)offset >> 32) & 0xFFFFFFFF);
 
 	idt[entry].selector = sel,
-	idt[entry].zero = 0;
+	idt[entry].reserved0 = 0;
+	idt[entry].reserved1 = 0;
 
 	idt[entry].flags = 0x80 | ((priv & 0x03) << 5) | gate;
 }

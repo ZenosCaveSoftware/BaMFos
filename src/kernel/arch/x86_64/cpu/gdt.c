@@ -25,7 +25,7 @@ void initialize_gdt()
 	fillgdte(4, (gdt_t){.base=0, .limit=0xFFFFFFFF, .type=0xF2}, false); // User mode data segment
 
 	write_tss(5, 0x10, 0x0);
-	gdt_flush((uintptr_t)gdt_ptr);
+	gdt_flush((uintptr_t)gdt_ptr, 0x8, 0x10);
     //__asm__ __volatile__ ("ltr %%ax": : "a" (5<<3));
 	tss_flush();
 }

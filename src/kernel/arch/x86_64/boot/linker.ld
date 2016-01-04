@@ -1,43 +1,57 @@
-/* The bootloader will look at this image and start execution at the symbol
-   designated at the entry point. */
+OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(_start)
+load = 0x0000001000;
+phys = 0x0000100000;
+virt = 0xFFFFFFFF80000000;
 
-/* Tell where the various sections of the object files will be put in the final
-   kernel image. */
 SECTIONS
 {
-	/* Begin putting sections at 1 MiB, a conventional place for kernels to be
-	   loaded at by the bootloader. */
-	. = 1M;
-
-	/* First put the multiboot header, as it is required to be put very early
-	   early in the image or the bootloader won't recognize the file format.
-	   Next we'll put the .text section. */
-	.text BLOCK(4K) : ALIGN(4K)
+	. = load;
+	.bootstrap : AT(ADDR(.bootstrap))
 	{
-		*(.multiboot)
-		*(.text)
+		*bootstrap.S.o(.text)
 	}
 
-	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
+	. = virt + phys;
+
+	.text :  AT(ADDR(.text) - virt)
 	{
-		*(.rodata)
+		code = .;
+		*(EXCLUDE_FILE(*bootstrap.S.o) .text)
+		*(.rodata*)
+		. = ALIGN(4096);
 	}
 
-	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
+	.data : AT(ADDR(.data) - virt)
 	{
+		data = .;
 		*(.data)
+		data_end = .;
+		. = ALIGN(4096);
 	}
 
-	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(4K) : ALIGN(4K)
+	.eh_frame : AT(ADDR(.eh_frame) - virt)
 	{
+		ehframe = .;
+		*(.eh_frame)
+		. = ALIGN(4096);
+	}
+
+	.bss : AT(ADDR(.bss) - virt)
+	{
+		bss = .;
 		*(COMMON)
 		*(.bss)
 		*(.bootstrap_stack)
+		. = ALIGN(4096);
 	}
 
 	end = .;
+	
+	/DISCARD/ : {
+		*(.note.GNU-stack)
+		*(.note.gnu.*)
+		*(.comment*)
+	}
+
 }
