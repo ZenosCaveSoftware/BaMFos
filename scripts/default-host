@@ -1,3 +1,6 @@
 #!/bin/sh
+
+#choose only one of the following and uncomment
+
 #echo i686-elf
 echo x86_64-elf

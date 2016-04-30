@@ -2,7 +2,7 @@
 set -e
 
 if [[ $# -ge 1 ]]; then
-	while [[ "x$1" != "x--no-staging" && $# -ne 0 ]]; do
+	while [[ "x$1" != "x-n" && $# -ne 0 ]]; do
 		shift;
 	done
 fi
