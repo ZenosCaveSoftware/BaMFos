@@ -61,13 +61,13 @@ all: BaMF.kernel
 .PHONY: all clean install install-headers install-kernel
 
 BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
-	$(CC) -Wl,--build-id=none -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) -gc-sections $(OBJ_LINKER) $(LIBS) 2>&1 |tee ../log/$@.log
+	$(CC) -Wl,--build-id=none -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 |tee ../log/$@.log
 	@echo "--- KERNEL LINKED ---"
 
 %.c.o: %.c
 	$(CC) -c $< -o $@ -std=c11 $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
 	@echo "--- COMPILED $(shell basename $<) ---"
-	
+
 %.S.o: %.S
 	$(CC) -c $< -o $@ $(CFLAGS) 2>&1 | tee ../log/$(shell basename $@ .o).log
 	@echo "--- ASSEMBLED $(shell basename $<) ---"

@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/usr/bin/bash
 MODULES="libc kernel"
 
 export MAKE=${MAKE:-make}
@@ -26,7 +26,7 @@ fi
 CC="$CC --sysroot=$PWD/../sysroot"
 LD="$LD --sysroot=$PWD/../sysroot"
 
-# Work around that the -elf gcc targets doesn't have a system include directory
+# Work around that the -elf gcc targets don't have a system include directory
 # because configure received --without-headers rather than --with-sysroot.
 if echo "$HOST" | grep -Eq -- '-elf($|-)'; then
 	export CC="$CC -isystem=$INCLUDEDIR"
