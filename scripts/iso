@@ -1,18 +1,20 @@
 #!/bin/bash
 set -e
-. ./build
+
+ROOTDIR="$(dirname $0)/.."
+pushd "$ROOTDIR"
+
+DESTDIR=../sysroot CC=i686-elf-gcc make -s clean build
 
 # Build Iso Dir
-[[ -d ../isodir ]] && rm -rf ../isodir 
-mkdir -p ../isodir
-mkdir -p ../isodir/boot
-mkdir -p ../isodir/boot/grub
+[[ -d isodir ]] && rm -rf isodir
+mkdir -p isodir/boot/grub
 
-cp eltorito.bin ../isodir/boot/grub
-cp ../sysroot/boot/BaMF.kernel ../isodir/boot/BaMF.kernel
+cp eltorito.bin isodir/boot/grub
+cp sysroot/boot/BaMF.kernel isodir/boot/BaMF.kernel
 
 #write grub.cfg out
-cat > ../isodir/boot/grub/grub.cfg << EOF
+cat > isodir/boot/grub/grub.cfg << EOF
 menuentry "BaMF-OS" {
 	multiboot /boot/BaMF.kernel
 }
@@ -22,7 +24,8 @@ mkisofs -R \
  		-no-emul-boot \
 		-boot-load-size 4 \
 		-boot-info-table \
-		-o ../BaMF.iso ../isodir
+		-o BaMF.iso isodir
 
-[[ -f ../BaMF.vdi ]] && rm ../BaMF.vdi;
-VBoxManage convertfromraw ../BaMF.iso ../BaMF.vdi
+popd
+# [[ -f ../BaMF.vdi ]] && rm ../BaMF.vdi;
+# VBoxManage convertfromraw ../BaMF.iso ../BaMF.vdi

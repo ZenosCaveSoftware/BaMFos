@@ -1,20 +1,23 @@
+MODULES ?= kernel libc
+HOST ?= i686-elf
+AR ?= $(HOST)-ar
+AS ?= $(HOST)-as
+CC ?= $(HOST)-gcc
+LD ?= $(HOST)-ld
 
-MODULES = kernel libc
+PREFIX ?= /usr
+EXEC_PREFIX ?= /usr
+BOOTDIR ?= /boot
+INCLUDEDIR ?= $(PREFIX)/include
+CFLAGS ?= --sysroot=$PWD/../sysroot -isystem=$INCLUDEDIR
+LDFLAGS ?= --sysroot=$PWD/../sysroot -isystem=$INCLUDEDIR
 
-ARCH ?= i686
-
-CFLAGS += -I../include/kernel/arch/$(ARCH) \
+CFLAGS += -I../include/kernel \
 	-I ../include/libc -O3 \
 	-ffreestanding -fpic -fno-common \
 	-fpic -nostdlib -lgcc -std=c11 -DNDEBUG \
 
-
-ARCHDIR := kernel/arch/$(ARCH)
-
-PREFIX?=/usr/local
-EXEC_PREFIX?=$(PREFIX)
-BOOTDIR?=$(EXEC_PREFIX)/boot
-INCLUDEDIR?=$(PREFIX)/include
+ARCHDIR = kernel
 
 LIBS :=
 
@@ -24,14 +27,12 @@ LSRC :=
 include $(patsubst %,\
 	%/module.mk,$(MODULES))
 
-include $(ARCHDIR)/flags.mk
-
-KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crti.s, $(KSRC))
-KSRC := $(filter-out kernel/arch/$(ARCH)/boot/crtn.s, $(KSRC))
+KSRC := $(filter-out boot/crti.s, $(KSRC))
+KSRC := $(filter-out boot/crtn.s, $(KSRC))
 
 CRTI_OBJ:=$(ARCHDIR)/boot/crti.S.o
-CRTBEGIN_OBJ:=../crt/$(ARCH)/crtbegin.o
-CRTEND_OBJ:=../crt/$(ARCH)/crtend.o
+CRTBEGIN_OBJ:=../crt/crtbegin.o
+CRTEND_OBJ:=../crt/crtend.o
 CRTN_OBJ:=$(ARCHDIR)/boot/crtn.S.o
 
 KOBJ :=									\
@@ -56,12 +57,10 @@ $(CRTN_OBJ) 	\
 
 SRCS := $(KSRC) $(LSRC)
 
-all: BaMF.kernel
-
-.PHONY: all clean install install-headers install-kernel
+.PHONY: clean install install-headers install-kernel
 
 BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
-	$(CC) -Wl,--build-id=none -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 |tee ../log/$@.log
+	$(CC) -Wl,--build-id=none -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 | tee ../log/$@.log
 	@echo "--- KERNEL LINKED ---"
 
 %.c.o: %.c
@@ -76,7 +75,7 @@ install: install-headers install-kernel
 
 install-headers:
 	@mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	@cp -RT ../include/kernel/arch/$(ARCH) $(DESTDIR)$(INCLUDEDIR);
+	@cp -RT ../include/kernel $(DESTDIR)$(INCLUDEDIR);
 	@cp -RT ../include/libc $(DESTDIR)$(INCLUDEDIR);
 	@echo "--- HEADERS INSTALLED ---"
 
@@ -85,7 +84,7 @@ install-kernel: BaMF.kernel
 	@mv BaMF.kernel $(DESTDIR)$(BOOTDIR)
 	@echo "--- KERNEL INSTALLED ---"
 
-clean: 
+clean:
 	find ./ -name "*.o" -exec rm {} \;
 	find ./ -name "*.d" -exec rm {} \;
 	@echo "--- CLEANED DIRS ---"

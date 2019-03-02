@@ -1,6 +1,0 @@
-#!/bin/bash
-set -e
-. ./config
-. ./folders
-
-DESTDIR="$PWD/../sysroot" $MAKE -j $(($(nproc) + 1)) -s -C ../src install

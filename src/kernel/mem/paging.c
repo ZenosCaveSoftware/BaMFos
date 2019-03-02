@@ -45,7 +45,7 @@ static uint32_t test_frame(uintptr_t addr)
 	uintptr_t frame = addr/0x1000;
 	uint32_t idx = INDEX_FROM_BIT(frame);
 	uint32_t off = OFFSET_FROM_BIT(frame);
-	return (frames[idx] & (0x1 << off));	
+	return (frames[idx] & (0x1 << off));
 }
 
 static uint32_t first_frame()
@@ -142,7 +142,7 @@ void initialize_paging(uint32_t memsize)
 	{
 		direct_frame( get_page(i, 1, kernel_directory), 1, 0, i);
 	}
-	
+
 	kernel_directory->physical_addr = (uintptr_t)kernel_directory->tables_physical;
 
 	uintptr_t heap_start = KERNEL_HEAP_START;
@@ -151,7 +151,7 @@ void initialize_paging(uint32_t memsize)
 	{
 		heap_start = placement_address + 0x100000;
 	}
-	
+
 	for (uintptr_t i = placement_address + 0x3000; i < heap_start; i += 0x1000)
 	{
 		alloc_frame(get_page(i, 1, kernel_directory), 1, 0);
@@ -166,9 +166,9 @@ void initialize_paging(uint32_t memsize)
 	{
 		alloc_frame(get_page(i, 1, kernel_directory), 0, 0);
 	}
-	
+
 	register_isr_handler(13, general_protection_fault);
-	register_isr_handler(14, page_fault);	
+	register_isr_handler(14, page_fault);
 
 	switch_page_directory(kernel_directory);
 
@@ -221,7 +221,7 @@ void *general_protection_fault(registers_t *regs)
 		terminal_writehex((uint32_t)index);
 		terminal_writestring("\n");
 	}
-	else 
+	else
 	{
 		terminal_writestring("!\n");
 	}

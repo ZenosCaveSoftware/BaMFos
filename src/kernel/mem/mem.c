@@ -23,11 +23,11 @@ uintptr_t _kmalloc(size_t size, uint8_t align, uintptr_t *phys)
         }
         return (uintptr_t)addr;
     }
-   
+
 	if(align && (placement_address & 0xFFF))
 	{
 		placement_address = placement_address + 0x1000 & ~0xFFF;
-	}	
+	}
 	if(phys)
 	{
 		*phys = placement_address;
@@ -43,7 +43,7 @@ uintptr_t kmalloc_p(size_t size, uintptr_t *phys) { return _kmalloc(size, 0, phy
 uintptr_t kmalloc_ap(size_t size, uintptr_t *phys) { return _kmalloc(size, 1, phys); }
 void kfree(void * p) { if(kernel_heap) khfree(p, kernel_heap); }
 
-uintptr_t map_to_physical(uintptr_t virt) 
+uintptr_t map_to_physical(uintptr_t virt)
 {
 	uintptr_t remaining = virt % 0x1000;
 	uintptr_t frameidx = virt / 0x1000;
@@ -52,7 +52,7 @@ uintptr_t map_to_physical(uintptr_t virt)
 
 	if(current_directory->tables[tableidx])
 	{
-		return current_directory->tables[tableidx]->pages[frameidx].frame * 0x1000 + remaining;		
+		return current_directory->tables[tableidx]->pages[frameidx].frame * 0x1000 + remaining;
 	}
 	else
 	{

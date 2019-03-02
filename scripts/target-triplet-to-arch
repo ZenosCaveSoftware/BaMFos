@@ -1,4 +1,0 @@
-#!/bin/sh
-echo "$1" | grep -Eq 'i[[:digit:]]86-' \
-	&& echo i686 \
-	|| echo "$1" | grep -Eo '^[[:alnum:]_]*'

@@ -1,6 +1,6 @@
 /* ===========================================================================
  * BamfOS 0.2.4
- * 
+ *
  *Please refer to LICENSE for copyright information
  * ===========================================================================
  */
@@ -65,9 +65,9 @@ uint8_t terminal_escape_sequence(const char *es);
 
 /*
  * ---------------------------------------------------------------------------
- *      Name   : initialize_terminal 
+ *      Name   : initialize_terminal
  *      Purpose: setup basic global variables and environment conditions
- *      Args   : 
+ *      Args   :
  *      Returns: void
  * ---------------------------------------------------------------------------
  */
@@ -85,7 +85,7 @@ void initialize_terminal()
 
 /*
  * ---------------------------------------------------------------------------
- *      Name   : terminal_setcolor 
+ *      Name   : terminal_setcolor
  *      Purpose: change terminal color
  *      Args   : uint8_t color
  *      Returns: void
@@ -98,7 +98,7 @@ void terminal_setcolor(uint8_t color)
 
 /*
  * ---------------------------------------------------------------------------
- *      Name   : terminal_putentryat 
+ *      Name   : terminal_putentryat
  *      Purpose: insert a character and color into the buffer at the given
  *               offset (x and y)
  *      Args   : char c,
@@ -161,13 +161,11 @@ void terminal_write(const char* data, size_t size)
             size_t i = 0;
             while(i++ < 4 - (terminal_column % 4))
                 terminal_putchar(' ');
-            
         }
         else if(data[i] == '\r')
         {
-            
             while(terminal_column-- >= 0)
-                terminal_putentryat(' ', 
+                terminal_putentryat(' ',
                     make_color(COLOR_LIGHT_GREY, COLOR_BLACK),
                     terminal_column, terminal_row);
         }
@@ -184,7 +182,7 @@ void terminal_write(const char* data, size_t size)
 /*
  * ---------------------------------------------------------------------------
  *      Name   : terminal_writestring
- *      Purpose: terminal_write() wrapper 
+ *      Purpose: terminal_write() wrapper
  *      Args   : const char *data
  *      Returns: void
  * ---------------------------------------------------------------------------
@@ -197,7 +195,7 @@ void terminal_writestring(const char* data)
 /*
  * ---------------------------------------------------------------------------
  *      Name   : terminal_writehex
- *      Purpose: write an unsinged integer in hex of up to 32 bits without 
+ *      Purpose: write an unsinged integer in hex of up to 32 bits without
  *               leading zeroes
  *      Args   : const uint32_t data
  *      Returns: void
@@ -219,8 +217,8 @@ void terminal_writehex(const uint32_t data)
     {
         val = tmp / 16;
         tmp2 = tmp - val * 16;
-        *--p = (tmp2 >= 0xa) 
-            ? (char) ('a' + tmp2 - 0xa) 
+        *--p = (tmp2 >= 0xa)
+            ? (char) ('a' + tmp2 - 0xa)
             : (char) ('0' + tmp2);
         tmp = val;
     }
@@ -232,7 +230,7 @@ void terminal_writehex(const uint32_t data)
  * ---------------------------------------------------------------------------
  *      Name   : terminal_scroll
  *      Purpose: scroll the buffer up one whole line
- *      Args   : 
+ *      Args   :
  *      Returns: void
  * ---------------------------------------------------------------------------
  */
@@ -294,7 +292,7 @@ uint8_t terminal_escape_sequence(const char *es)
     {
         switch(*es2 - '0') {
             case(0):
-                terminal_color 
+                terminal_color
                     = make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
                 break;
             case(3):
@@ -340,7 +338,7 @@ uint8_t terminal_escape_sequence(const char *es)
                 terminal_putchar('m');
                 break;
         }
-        es2 += 2;  
+        es2 += 2;
         return es2 - es;
     }
     else if(*es2 == '1' && es2[1] == '0' && es2[3] == 'm')
