@@ -4,25 +4,28 @@ AR ?= $(HOST)-ar
 AS ?= $(HOST)-as
 CC ?= $(HOST)-gcc
 LD ?= $(HOST)-ld
+NASM ?= nasm
 
-PREFIX ?= /usr
-EXEC_PREFIX ?= /usr
-BOOTDIR ?= /boot
-INCLUDEDIR ?= $(PREFIX)/include
-CFLAGS ?= --sysroot=$PWD/../sysroot -isystem=$INCLUDEDIR
-LDFLAGS ?= --sysroot=$PWD/../sysroot -isystem=$INCLUDEDIR
+CFLAGS += -Ikernel/include \
+          -Ilibc/include \
+		  -ffreestanding \
+		  -fno-common \
+		  -fpic \
+		  -nostdlib \
+		  -nodefaultlibs \
+		  -nostartfiles \
+		  -std=c11 \
+		  -DNDEBUG
 
-CFLAGS += -I../include/kernel \
-	-I ../include/libc -O3 \
-	-ffreestanding -fpic -fno-common \
-	-fpic -nostdlib -lgcc -std=c11 -DNDEBUG \
+PREFIX?=/usr/local
+BOOTDIR?=/boot
+INCLUDEDIR?=$(PREFIX)/include
 
-ARCHDIR = kernel
-
-LIBS :=
-
-KSRC :=
-LSRC :=
+KSRC  :=
+LSRC  :=
+BOOTSRC := bootloader/Stage1/Stage1.asm
+LDRSRC  := bootloader/Stage2/Stage2.asm
+LIBS	:=
 
 include $(patsubst %,\
 	%/module.mk,$(MODULES))
@@ -30,10 +33,10 @@ include $(patsubst %,\
 KSRC := $(filter-out boot/crti.s, $(KSRC))
 KSRC := $(filter-out boot/crtn.s, $(KSRC))
 
-CRTI_OBJ:=$(ARCHDIR)/boot/crti.S.o
+CRTI_OBJ:=kernel/boot/crti.S.o
 CRTBEGIN_OBJ:=../crt/crtbegin.o
 CRTEND_OBJ:=../crt/crtend.o
-CRTN_OBJ:=$(ARCHDIR)/boot/crtn.S.o
+CRTN_OBJ:=kernel/boot/crtn.S.o
 
 KOBJ :=									\
 		$(patsubst %.c,%.c.o,			\
@@ -57,10 +60,20 @@ $(CRTN_OBJ) 	\
 
 SRCS := $(KSRC) $(LSRC)
 
-.PHONY: clean install install-headers install-kernel
+all: build/Boot.bin build/KRNLDR.SYS build KRNL.SYS
 
-BaMF.kernel: $(OBJ_LINKER) $(ARCHDIR)/boot/linker.ld
-	$(CC) -Wl,--build-id=none -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 | tee ../log/$@.log
+.PHONY: all clean install install-headers install-kernel
+
+Boot.bin:
+	$(NASM) -i bootloader/inc/ -f bin $(BOOTSRC) -o $@
+	@echo "--- BOOT Stage1 BUILT ---"
+
+KRNLDR.SYS:
+	$(NASM) -i bootloader/inc/ -f bin $(LDRSRC) -o $@
+	@echo "--- LOADER Stage2 BUILT ---"
+
+KRNL.SYS: $(OBJ_LINKER) kernel/boot/linker.ld
+	$(CC) -Wl,--build-id=none -T kernel/boot/linker.ld -o $@ $(CFLAGS) $(OBJ_LINKER) $(LIBS) 2>&1 | tee ../log/$@.log
 	@echo "--- KERNEL LINKED ---"
 
 %.c.o: %.c
@@ -75,13 +88,13 @@ install: install-headers install-kernel
 
 install-headers:
 	@mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	@cp -RT ../include/kernel $(DESTDIR)$(INCLUDEDIR);
-	@cp -RT ../include/libc $(DESTDIR)$(INCLUDEDIR);
+	@cp -RT kernel/include/ $(DESTDIR)$(INCLUDEDIR);
+	@cp -RT libc/include/ $(DESTDIR)$(INCLUDEDIR);
 	@echo "--- HEADERS INSTALLED ---"
 
-install-kernel: BaMF.kernel
+install-kernel: KRNL.SYS KRNLDR.SYS Boot.bin
 	@mkdir -p $(DESTDIR)$(BOOTDIR)
-	@mv BaMF.kernel $(DESTDIR)$(BOOTDIR)
+	@mv Boot.bin KRNLDR.SYS KRNL.SYS $(DESTDIR)$(BOOTDIR)
 	@echo "--- KERNEL INSTALLED ---"
 
 clean:

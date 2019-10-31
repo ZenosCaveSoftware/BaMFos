@@ -6,12 +6,27 @@ pushd "$ROOTDIR"
 
 DESTDIR=../sysroot CC=i686-elf-gcc make -s clean build
 
+# Build IMG Dir
+[[ -d imgdir ]] && rm -rf imgdir
+mkdir -p imgdir
+
+# Build image
+cp EmptyFat12.img BAMFOS.IMG
+loop=$(losetup -f)
+sudo losetup -P "${loop}" BAMFOS.IMG
+sudo mount -t msdos "${loop}" imgdir
+sudo cp sysroot/boot/*.SYS imgdir
+sudo umount imgdir
+sudo losetup -d "${loop}"
+
+dd if=sysroot/boot/Boot.bin of=BAMFOS.IMG bs=512 count=1
+
 # Build Iso Dir
 [[ -d isodir ]] && rm -rf isodir
 mkdir -p isodir/boot/grub
 
 cp eltorito.bin isodir/boot/grub
-cp sysroot/boot/BaMF.kernel isodir/boot/BaMF.kernel
+cp sysroot/boot/KRNL.SYS isodir/boot/BaMF.kernel
 
 #write grub.cfg out
 cat > isodir/boot/grub/grub.cfg << EOF

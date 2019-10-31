@@ -13,7 +13,7 @@ endef
 export PRINT_HELP_PYSCRIPT
 
 folders:
-	@mkdir -p log sysroot
+	@mkdir -p log/build sysroot build
 
 help: ## print help info
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
