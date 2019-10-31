@@ -19,7 +19,7 @@ sudo cp sysroot/boot/*.SYS imgdir
 sudo umount imgdir
 sudo losetup -d "${loop}"
 
-dd if=sysroot/boot/Boot.bin of=BAMFOS.IMG bs=512 count=1
+dd if=sysroot/boot/Boot.bin of=BAMFOS.img bs=512 count=1
 
 # Build Iso Dir
 [[ -d isodir ]] && rm -rf isodir

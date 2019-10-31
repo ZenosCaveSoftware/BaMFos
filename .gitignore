@@ -3,6 +3,7 @@ bochsout.txt
 
 # Iso Files/dirs
 *.iso
+*.img
 *.vdi
 *.kernel
 isodir
